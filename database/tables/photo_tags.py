@@ -5,6 +5,11 @@ from database.db_session import Base
 class photo_tags(Base):
     __tablename__ = "photo_tags"
 
+    # Table columns
     id = Column(Integer, primary_key=True, autoincrement=True)
-    photo_id = Column(Integer)
-    theme_id = Column(Integer)
+    photo_id = Column(Integer, ForeignKey("photos.id"))
+    tag_id = Column(Integer, ForeignKey("tags.id"))
+
+    # Relations
+    photos = orm.relation("photos", backref="photo_tags")
+    themes = orm.relation("tags", backref="photo_tags")

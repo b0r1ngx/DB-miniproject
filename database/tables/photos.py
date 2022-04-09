@@ -5,6 +5,7 @@ from database.db_session import Base
 class photos(Base):
     __tablename__ = "photos"
 
+    # Table columns
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     url = Column(String)
@@ -15,6 +16,10 @@ class photos(Base):
     private = Column(Boolean, default=False)
     created_at = Column(DateTime)
 
-    comments = orm.relation("comments", back_populates="photos")
-    albums = orm.relation("albums", back_populates="photos")
-    users = orm.relation("users")
+    # Relations
+    users = orm.relation("users", backref="photos")
+    comments = orm.relation("comments", backref="photos")
+    photo_tags = orm.relation("photo_tags", backref="photos")
+    photo_themes = orm.relation("photo_themes", backref="photos")
+    album_photos = orm.relation("album_photos", backref="photos")
+    photo_access = orm.relation("photo_access", backref="photos")
