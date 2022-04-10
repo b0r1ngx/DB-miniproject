@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, orm
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, orm
 from database.db_session import Base
 
 
@@ -10,6 +10,7 @@ class users(Base):
     full_name = Column(String)
     email = Column(String, unique=True)
     password = Column(String)
+    is_admin = Column(Boolean)
     created_at = Column(DateTime)
 
     # Relations
