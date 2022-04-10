@@ -12,7 +12,7 @@ def insert_into_users(full_name, email, password, is_admin=False):
         s.commit()
 
 
-def login(email: str, password: str) -> bool:
+def db_login(email: str, password: str) -> bool:
     with Session() as s:
         stmt = f'''SELECT EXISTS ( 
                     SELECT * FROM (

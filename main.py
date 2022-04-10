@@ -3,6 +3,9 @@ from werkzeug.datastructures import FileStorage
 from flask_restx.reqparse import RequestParser
 from flask_restx import Api, fields, Resource
 from flask_cors import CORS
+import base64
+from test import db_login
+from database.db_session import init_database_session
 
 app = Flask(__name__)
 app.secret_key = "secretKey"
@@ -101,16 +104,29 @@ admin_api = api.namespace('admin_api', description='API for admin')
 @admin_api.route("/login")
 class Login(Resource):
     @staticmethod
-    @api.doc(description="Тут логиниться")
+    @user_api.doc(description="Тут логиниться")
+    @user_api.doc(sum="qwerty")
     @user_api.expect(RequestParser()
-                     .add_argument(name="username", type=str, location="form", required=True)
+                     .add_argument(name="email", type=str, location="form", required=True)
                      .add_argument(name="password", type=str, location="form", required=True)
                      )
     @user_api.response(200, "Success", token64_model)  # add token model
     @user_api.response(400, "Invalid request", message_model)
-    @user_api.response(403, "Wrong username or password", message_model)
+    @user_api.response(403, "Wrong email or password", message_model)
     def post():
-        pass
+        f = request.form
+        if not ("email" in f and "password" in f):
+            return make_response({"message": "Invalid request"}, 400)
+        email = f["email"]
+        password = f["password"]
+
+        is_correct = db_login(email, password)
+
+        if not is_correct:
+            return make_response({"message": "Wrong email or password"}, 403)
+
+        token64 = base64.b64encode(f"{email}:{password}".encode('ascii')).decode('ascii')
+        return make_response({"token": token64}, 200)
 
 
 @user_api.route("/registration")
@@ -125,7 +141,19 @@ class Registration(Resource):
                      .add_argument(name="full_name", type=str, location="form", required=True)
                      )
     def post():
-        pass
+        f = request.form
+        if not ("email" in f and "password" in f and "full_name" in f):
+            return make_response({"message": "Invalid request"}, 400)
+        email = f["email"]
+        password = f["password"]
+        full_name = f["password"]
+
+        is_Correct = True  # TODO(Если такой email уже зарегистрирован False, иначе True)
+        if not is_Correct:
+            return make_response({"message": "This username is already taken"}, 403)
+        # TODO(Магия записи в БД)
+        token64 = base64.b64encode(f"{email}:{password}".encode('ascii')).decode('ascii')
+        return make_response({"token": token64}, 200)
 
 
 @user_api.route("/user/<int:user_id>")
@@ -493,4 +521,5 @@ if __name__ == "__main__":
     # logging.basicConfig(filename="Converter.log", level=logging.DEBUG,
     #                     format="[%(asctime)s] %(levelname)s - %(message)s")
     # print(type(message_model))
+    init_database_session()
     app.run(host="localhost", port=5002)

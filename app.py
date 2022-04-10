@@ -5,7 +5,8 @@ from test import login
 def test():
     print("add user to users")
     with Session() as s:
-        s.add(users(full_name="Kirill Ivanov", email="perkeboring@gmail.com", password="perkeboring", is_admin=True))
+        # s.add(users(full_name="Kirill Ivanov", email="perkeboring@gmail.com", password="perkeboring", is_admin=True))
+        s.add(users(full_name="Ilya Tsaplin", email="asd@gmail.com", password="qwerty", is_admin=True))
         print("user added")
         s.commit()
 
