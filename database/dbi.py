@@ -29,8 +29,8 @@ def login(email: str, password: str) -> int:
                     ) AS u
                     WHERE u.password = '{password}';'''
         id = s.execute(stmt)
-    for id in id:
-        return id[0]
+    for i in id:
+        return i[0]
 
 
 def get_user_id(email: str) -> int:
@@ -42,8 +42,8 @@ def get_user_id(email: str) -> int:
     with Session() as s:
         stmt = f'''SELECT * FROM users
                    WHERE users.email = '{email}\''''
-        exists = s.execute(stmt)
-    for i in exists:
+        id = s.execute(stmt)
+    for i in id:
         return i[0]
 
 
@@ -67,12 +67,12 @@ def registration(full_name, email, password) -> bool:
     return True
 
 
-def do_user_have_access_to_other_user_photos(owner: int, viewer: int) -> dict:
+def do_user_have_access_to_other_user_photos(owner_id: int, viewer_id: int) -> dict:
     """What photos can viewer see at owner (someone)
 
 Also for albums too
-    :param owner:
-    :param viewer:
+    :param owner_id:
+    :param viewer_id:
     :return: dict: {
                 "id": owner.id,
                 "full_name": owner.full_name,
@@ -85,23 +85,34 @@ Also for albums too
         photos = s.execute(stmt)
     return {"id": 1}
 
-def check_user_exist(user_id) -> bool:
-    """
 
+def check_user_exist(user_id: int) -> bool:
+    """
     :param user_id:
-    :return True: - User exist
-    :return False: - User not exist
+    :return: True - if user exists, else False
     """
-    pass  # TODO
+    with Session() as s:
+        stmt = f'''SELECT * FROM users
+                  WHERE users.id = {user_id}'''
+        exists = s.execute(stmt)
+    for i in exists:
+        if i[0]:
+            return True
+    return False
 
 
-def is_admin(user_id) -> bool:
+def is_admin(user_id: int) -> bool:
     """
     hi
-    :param user_id:
-    :return True: - User is admin
-    :return False: - User isn't admin
+    :param user_id: ,
+    :return: True - if user admin, else False
     """
+    with Session() as s:
+        stmt = f'''SELECT is_admin FROM users
+                   WHERE users.id = {user_id}'''
+        is_admin = s.execute(stmt)
+    for i in is_admin:
+        return i[0]
 
 
 def delete_user(user_id):
