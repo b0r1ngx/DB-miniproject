@@ -1,4 +1,6 @@
 # Local
+from functools import wraps
+
 from database.db_session import init_database_session
 from database import dbi
 
@@ -105,6 +107,24 @@ user_api = api.namespace('api', description='API for user')
 admin_api = api.namespace('admin_api', description='API for admin')
 
 
+def check_auth():
+    auth = request.authorization
+    if not auth or not dbi.login(auth.username, auth.password):
+        return False
+    return True
+
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not dbi.login(auth.username, auth.password):
+            return make_response({}, )
+        return f(*args, **kwargs)
+
+    return decorated
+
+
 @user_api.route("/login")
 @admin_api.route("/login")
 class Login(Resource):
@@ -153,7 +173,7 @@ class Registration(Resource):
         password = f["password"]
         full_name = f["full_name"]
 
-        is_Correct = True   # TODO(Если такой email уже зарегистрирован False, иначе True)
+        is_Correct = True  # TODO(Если такой email уже зарегистрирован False, иначе True)
         if not is_Correct:
             return make_response({"message": "This email is already taken"}, 403)
         # TODO(Магия записи в БД) def registration(email, password, full_name)
@@ -168,6 +188,19 @@ class User(Resource):
     @user_api.response(200, "Success", user_model)
     @user_api.response(404, "Not found user with this ID", message_model)
     def get(user_id):
+        is_user_exist = True  # TODO(существует ли пользователь с id) def check_user_exist(id)
+        if not is_user_exist:
+            make_response({"message": "Not found user with this ID"}, 403)
+
+        is_auth = False
+        user = {
+            "id": 1,
+            "name": fields.String,
+            "full_name": fields.String,
+            "email": fields.String,
+            "date": fields.DateTime,
+            "photos": fields.List(fields.Nested(photo_preview_model))
+        }
         pass
 
     @staticmethod
@@ -178,6 +211,9 @@ class User(Resource):
     @user_api.response(403, "You cannot delete users", message_model)
     @user_api.response(404, "Not found user with this ID", message_model)
     def delete(user_id):
+        print(1)
+        print(request.authorization)
+        print(2)
         pass
 
     @staticmethod
