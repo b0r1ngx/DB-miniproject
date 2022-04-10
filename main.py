@@ -107,16 +107,6 @@ user_api = api.namespace('api', description='API for user')
 admin_api = api.namespace('admin_api', description='API for admin')
 
 
-def check_auth():
-    auth = request.authorization
-    if not auth:
-        return False
-    user_id = dbi.login(auth.username, auth.password)
-    if not user_id:
-        return False
-    return user_id
-
-
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
