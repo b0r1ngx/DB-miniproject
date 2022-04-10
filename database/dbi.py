@@ -26,6 +26,20 @@ def login(email: str, password: str) -> int:
                         WHERE users.email = '{email}'
                     ) AS u
                     WHERE u.password = '{password}';'''
+        id = s.execute(stmt)
+    for id in id:
+        return id[0]
+
+
+def get_user_id(email:str) -> int:
+    """
+    Also can be used on registration() when need to check if user exists
+    :param email:
+    :return:
+    """
+    with Session() as s:
+        stmt = f'''SELECT * FROM users
+                   WHERE users.email = '{email}\''''
         exists = s.execute(stmt)
     for i in exists:
         return i[0]
