@@ -109,9 +109,12 @@ admin_api = api.namespace('admin_api', description='API for admin')
 
 def check_auth():
     auth = request.authorization
-    if not auth or not dbi.login(auth.username, auth.password):
+    if not auth:
         return False
-    return True
+    user_id = dbi.login(auth.username, auth.password)
+    if not user_id:
+        return False
+    return user_id
 
 
 def requires_auth(f):
@@ -119,9 +122,8 @@ def requires_auth(f):
     def decorated(*args, **kwargs):
         auth = request.authorization
         if not auth or not dbi.login(auth.username, auth.password):
-            return make_response({}, )
+            return make_response({"message": "You must be logged in"}, 401)
         return f(*args, **kwargs)
-
     return decorated
 
 
@@ -130,7 +132,7 @@ def requires_auth(f):
 class Login(Resource):
     @staticmethod
     @user_api.doc(description="Тут логиниться")
-    @user_api.doc(sum="qwerty")
+    @user_api.doc(summary="qwerty")
     @user_api.expect(RequestParser()
                      .add_argument(name="email", type=str, location="form", required=True)
                      .add_argument(name="password", type=str, location="form", required=True)
