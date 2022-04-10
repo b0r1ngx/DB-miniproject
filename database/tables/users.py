@@ -23,7 +23,8 @@ class users(Base):
     album_access = orm.relation("album_access", backref="users")
 
     def __str__(self):
-        return f"<User ({self.id}) - Full Name: {self.full_name}, email: {self.email}, is_admin: {self.is_admin}>"
+        return f"<User ({self.id}) - Full Name: {self.full_name}, email: {self.email}, " \
+               f"is_admin: {self.is_admin}, created_at: {self.created_at}>"
 
     def __repr__(self):
         return self.__str__()

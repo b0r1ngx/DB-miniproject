@@ -1,6 +1,8 @@
 from database.db_session import Session
 from database.tables.users import users
 from sqlalchemy import insert
+from sqlalchemy.exc import *
+from psycopg2.errors import *
 import re
 
 
@@ -46,9 +48,33 @@ def get_user_id(email:str) -> int:
 
 
 def registration(full_name, email, password) -> bool:
-    with Session() as s:
+    s = Session()
+    try:
         stmt = f'''INSERT INTO users (full_name, email, password) 
-                   VALUES ({full_name}, {email}, {password})'''
+                   VALUES ('{full_name}', '{email}', '{password}')'''
         s.execute(stmt)
         s.commit()
+    except:
+        return False
+    finally:
+        s.close()
     return True
+
+
+def do_user_have_access_to_other_user_photos(owner: int, viewer: int) -> dict:
+    """
+    :param owner:
+    :param viewer:
+    :return: dict: {
+                "id": owner.id,
+                "full_name": owner.full_name,
+                "email": owner.email,
+                "date": owner.created_at,
+                "photos": list[of owner.photos that accces to viewer]  # TODO get photos that you have access to
+            }
+    """
+    # also for albums too
+    pass
+
+
+
