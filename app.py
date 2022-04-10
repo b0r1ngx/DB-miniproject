@@ -1,6 +1,6 @@
 from database.db_session import init_database_session, Session
 from database.tables.users import users
-
+from test import login
 
 def test():
     print("add user to users")
@@ -12,10 +12,11 @@ def test():
 
 def test_query():
     with Session() as s:
-        print(s.query(users).all())
+        user_list = s.query(users).all()
+        print(user_list)
 
 
 if __name__ == "__main__":
     init_database_session()
-    test()
-    test_query()
+    print(login('perkeboring@gmail.com', 'lol'))
+    print(login('perkeboring@gmail.com', 'perkeboring'))

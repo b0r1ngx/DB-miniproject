@@ -1,20 +1,11 @@
 from flask import Flask, request, make_response
-from flask_restx import Api, fields, Resource
-from flask_restx.reqparse import RequestParser
-# from flask_migrate import Migrate
-# from flask_sqlalchemy import SQLAlchemy
-# from constants import db
 from werkzeug.datastructures import FileStorage
+from flask_restx.reqparse import RequestParser
+from flask_restx import Api, fields, Resource
 from flask_cors import CORS
 
 app = Flask(__name__)
 app.secret_key = "secretKey"
-
-# app.config['SQLALCHEMY_DATABASE_URI'] = db
-#
-# db = SQLAlchemy(app)
-# migrate = Migrate(app, db)
-
 
 CORS(app)
 authorizations = {
@@ -96,7 +87,7 @@ photo_model = api.model("photo", {
     "id": fields.Integer,
     "url": fields.Url,
     "user": fields.Nested(user_info_model),
-    "teg_list": fields.List(fields.Integer),
+    "tag_list": fields.List(fields.Integer),
     "theme_list": fields.List(fields.Integer),
     "album_list": fields.List(fields.Integer),
     "comment_list": fields.List(fields.Nested(comment_model))
