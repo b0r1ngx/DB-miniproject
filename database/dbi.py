@@ -33,7 +33,7 @@ def login(email: str, password: str) -> int:
         return id[0]
 
 
-def get_user_id(email:str) -> int:
+def get_user_id(email: str) -> int:
     """
     Also can be used on registration() when need to check if user exists
     :param email:
@@ -84,3 +84,21 @@ Also for albums too
         s.query(photos)
         photos = s.execute(stmt)
     return {"id": 1}
+
+def check_user_exist(user_id) -> bool:
+    """
+
+    :param user_id:
+    :return True: - User exist
+    :return False: - User not exist
+    """
+    pass  # TODO
+
+
+def is_admin(user_id) -> bool:
+    """
+    hi
+    :param user_id:
+    :return True: - User is admin
+    :return False: - User isn't admin
+    """
