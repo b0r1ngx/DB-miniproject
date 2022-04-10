@@ -96,7 +96,7 @@ def check_user_exist(user_id) -> bool:
 
 def is_admin(user_id) -> bool:
     """
-
+    hi
     :param user_id:
     :return True: - User is admin
     :return False: - User isn't admin
