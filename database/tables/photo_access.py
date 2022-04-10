@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, ForeignKey, orm
+from sqlalchemy import Column, Integer, ForeignKey
 from database.db_session import Base
+from database.tables.photos import photos
 
 
 class photo_access(Base):

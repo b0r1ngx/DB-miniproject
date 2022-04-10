@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, orm
 from database.db_session import Base
 from datetime import datetime as dt
-
-# from .albums import albums
+from database.tables.albums import albums
 # from database.tables.photos import photos
 # from database.tables.comments import comments
 # from database.tables.photo_access import photo_access

@@ -4,15 +4,14 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import QueuePool
 from sqlalchemy import create_engine
 
+from constants import db
 
 Base = declarative_base()
 Session: Session
 
 
 def init_database_session():
-    # How to read engine URL: dialect+driver://username:password@host:port/database
-    engine = create_engine(url='postgresql+psycopg2://postgres:postgres@localhost:5432/database/db',
-                           echo=False, pool_size=10, max_overflow=0, poolclass=QueuePool, pool_pre_ping=True)
+    engine = create_engine(url=db, echo=False, pool_size=10, max_overflow=0, poolclass=QueuePool, pool_pre_ping=True)
 
     print('Подключение к базе данных')
     global Session

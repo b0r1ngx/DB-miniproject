@@ -1,9 +1,19 @@
 from flask import Flask, request, make_response
 from flask_restx import Api, fields, Resource
 from flask_restx.reqparse import RequestParser
+# from flask_migrate import Migrate
+# from flask_sqlalchemy import SQLAlchemy
+# from constants import db
 
 app = Flask(__name__)
 app.secret_key = "secretKey"
+
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = db
+#
+# db = SQLAlchemy(app)
+# migrate = Migrate(app, db)
+
 
 authorizations = {
     'basicAuth': {

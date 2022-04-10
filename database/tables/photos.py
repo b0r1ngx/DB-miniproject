@@ -1,6 +1,10 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey,orm
 from database.db_session import Base
 from datetime import datetime as dt
+from database.tables.comments import comments
+from database.tables.photo_tags import photo_tags
+from database.tables.photo_themes import photo_themes
+from database.tables.album_photos import album_photos
 
 
 class photos(Base):

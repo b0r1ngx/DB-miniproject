@@ -1,9 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, orm
 from database.db_session import Base
 from datetime import datetime as dt
-# from .users import users
-# from database.tables.photo_access import photo_access
-# from database.tables.album_access import album_access
+from database.tables.photo_access import photo_access
+from database.tables.album_access import album_access
 
 
 class albums(Base):

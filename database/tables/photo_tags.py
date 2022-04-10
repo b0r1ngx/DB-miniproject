@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey, orm
 from database.db_session import Base
+from database.tables.tags import tags
 
 
 class photo_tags(Base):
