@@ -4,6 +4,8 @@ from flask_restx.reqparse import RequestParser
 # from flask_migrate import Migrate
 # from flask_sqlalchemy import SQLAlchemy
 # from constants import db
+from werkzeug.datastructures import FileStorage
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.secret_key = "secretKey"
@@ -15,6 +17,7 @@ app.secret_key = "secretKey"
 # migrate = Migrate(app, db)
 
 
+CORS(app)
 authorizations = {
     'basicAuth': {
         'type': 'basic'
@@ -184,6 +187,7 @@ class UserAlbumID(Resource):
         pass
 
     @staticmethod
+    @api.doc(security='basicAuth')
     @user_api.response(200, "Success", album_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot update this album", message_model)
@@ -197,6 +201,7 @@ class UserAlbumID(Resource):
         pass
 
     @staticmethod
+    @api.doc(security='basicAuth')
     @user_api.response(200, "Success", message_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot delete this album", message_model)
@@ -223,17 +228,44 @@ class Search(Resource):
 @user_api.route("/photo")
 class Photo(Resource):
     @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", photo_model)
+    @user_api.response(400, "Invalid request", message_model)
+    @user_api.response(401, "You must be logged in", message_model)
     @user_api.expect(RequestParser()
-                     .add_argument(name="file", type=str, location="form")#File???
+                     .add_argument(name="file", type=FileStorage, location="files")#File???
                      # TODOha
                      )
     def post():
-        pass
+        request.files.get("file").save()
+        print(type(request.files.get("file")))
+        return "123"
 
 
 @user_api.route("/photo/<int:photo_id>")
 class PhotoID(Resource):
-    pass
+    @staticmethod
+    @user_api.response(200, "Success", photo_model)
+    def get(photo_id):
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", photo_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot update this photo", message_model)
+    @user_api.response(400, "Invalid request", message_model)
+    def put(photo_id):
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot delete this photo", message_model)
+    def delete(photo_id):
+        pass
+
 
 
 @user_api.route("/photo/<int:photo_id>/accessList")
