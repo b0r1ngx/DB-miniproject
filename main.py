@@ -10,7 +10,6 @@ from flask_cors import CORS
 app = Flask(__name__)
 app.secret_key = "secretKey"
 
-
 # app.config['SQLALCHEMY_DATABASE_URI'] = db
 #
 # db = SQLAlchemy(app)
@@ -68,7 +67,23 @@ album_list_model = api.model("album_list", {
 photo_list_model = api.model("photo_list", {
     "list": fields.List(fields.Nested(photo_preview_model))
 })
-
+int_list_model = api.model("int_list", {
+    "list": fields.List(fields.Integer)
+})
+theme_model = api.model("theme", {
+    "id": fields.Integer,
+    "name": fields.String
+})
+theme_list_model = api.model("theme_list", {
+    "list": fields.List(fields.Nested(theme_model))
+})
+tag_model = api.model("tag", {
+    "id": fields.Integer,
+    "name": fields.String
+})
+tag_list_model = api.model("tag_list", {
+    "list": fields.List(fields.Nested(tag_model))
+})
 
 comment_model = api.model("comment", {
     "id": fields.Integer,
@@ -95,6 +110,7 @@ admin_api = api.namespace('admin_api', description='API for admin')
 @admin_api.route("/login")
 class Login(Resource):
     @staticmethod
+    @api.doc(description="Тут логиниться")
     @user_api.expect(RequestParser()
                      .add_argument(name="username", type=str, location="form", required=True)
                      .add_argument(name="password", type=str, location="form", required=True)
@@ -216,7 +232,7 @@ class Search(Resource):
     @user_api.response(200, "Success", photo_list_model)
     @user_api.expect(RequestParser()
                      .add_argument(name="theme_id", type=int, location="form", required=True)
-                     .add_argument(name="tag_id", type=int, location="form")
+                     .add_argument(name="tag_id", type=int, location="form")  # Поиск по множеству тегов/тем??
                      .add_argument(name="created_at", type=str, location="form")
                      .add_argument(name="amount", type=int, location="form")
                      .add_argument(name="page", type=int, location="form")
@@ -233,12 +249,17 @@ class Photo(Resource):
     @user_api.response(400, "Invalid request", message_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.expect(RequestParser()
-                     .add_argument(name="file", type=FileStorage, location="files")#File???
-                     # TODOha
+                     .add_argument(name="file", type=FileStorage, location="files")
+                     .add_argument(name="description", type=str, location="form")
+                     .add_argument(name="albums", type=int, location="form", action="append")
+                     .add_argument(name="tags", type=int, location="form", action="append")
+                     .add_argument(name="themes", type=int, location="form", action="append")
+                     .add_argument(name="private or no", type=bool, location="form")
                      )
     def post():
         request.files.get("file").save()
         print(type(request.files.get("file")))
+        pass
         return "123"
 
 
@@ -254,8 +275,18 @@ class PhotoID(Resource):
     @user_api.response(200, "Success", photo_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot update this photo", message_model)
-    @user_api.response(400, "Invalid request", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="description", type=str, location="form")
+                     .add_argument(name="albums", type=int, location="form", action="append")
+                     .add_argument(name="tags", type=int, location="form", action="append")
+                     .add_argument(name="themes", type=int, location="form", action="append")
+                     .add_argument(name="private or no", type=bool, location="form")
+                     )
     def put(photo_id):
+        f = request.form
+        albums = f.getlist()
+        print(123)
         pass
 
     @staticmethod
@@ -263,105 +294,208 @@ class PhotoID(Resource):
     @user_api.response(200, "Success", message_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot delete this photo", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
     def delete(photo_id):
         pass
 
 
-
 @user_api.route("/photo/<int:photo_id>/accessList")
 class AccessList(Resource):
-    pass
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", int_list_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot get this list", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    def get(photo_id):
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", int_list_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot create this list", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="user_ids", type=int, location="form", action="append", required=True)
+                     )
+    def post(photo_id):
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", int_list_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot update this list", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="user_ids", type=int, location="form", action="append", required=True)
+                     )
+    def put(photo_id):
+        pass
 
 
 @user_api.route("/photo/<int:photo_id>/accessList/<int:user_id>")
 class AccessListID(Resource):
-    pass
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot change this", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    def delete(photo_id, user_id):
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot change this", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    def put(photo_id, user_id):
+        pass
 
 
 @user_api.route("/photo/<int:photo_id>/comment")
 class Comment(Resource):
-    pass
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", comment_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You do not have access to this photo", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="text", type=str, location="form", required=True)
+                     )
+    def post(photo_id):
+        pass
 
 
 @user_api.route("/photo/<int:photo_id>/comment/<int:comment_id>")
 class CommentID(Resource):
-    pass
+    @staticmethod
+    @user_api.expect(RequestParser()
+                     .add_argument(name="text", type=str, location="form", required=True)
+                     )
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", comment_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You do not have access to this comment", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    @user_api.response(404, "Not found comment with this ID", message_model)
+    def put(photo_id, comment_id):
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", comment_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You do not have access to this comment", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    @user_api.response(404, "Not found comment with this ID", message_model)
+    def delete(photo_id, comment_id):
+        pass
 
 
 @user_api.route("/theme")
+@admin_api.route("/theme")
 class Theme(Resource):
-    pass
+    @staticmethod
+    @user_api.response(200, "Success", theme_list_model)
+    def get():
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.doc(doc=False)
+    @user_api.response(200, "Success", theme_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot create theme", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="name", type=str, location="form", required=True)
+                     )
+    def post():
+        pass
 
 
 @user_api.route("/theme/<int:theme_id>")
+@admin_api.route("/theme/<int:theme_id>")
 class ThemeID(Resource):
-    pass
+    @staticmethod
+    @user_api.response(200, "Success", photo_list_model)
+    def get(theme_id):
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.doc(doc=False)
+    @user_api.response(200, "Success", theme_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot create theme", message_model)
+    @user_api.response(404, "Not found comment theme this ID", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="name", type=str, location="form", required=True)
+                     )
+    def put(theme_id):
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.doc(doc=False)
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot delete this theme", message_model)
+    @user_api.response(404, "Not found comment theme this ID", message_model)
+    def delete(theme_id):
+        pass
 
 
 @user_api.route("/tag")
 class Tag(Resource):
-    pass
+    @staticmethod
+    @user_api.response(200, "Success", tag_list_model)
+    def get():
+        pass
+
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", tag_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot create tag", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="name", type=str, location="form", required=True)
+                     )
+    def post():
+        pass
 
 
 @user_api.route("/tag/<int:tag_id>")
 class TageID(Resource):
-    pass
+    @staticmethod
+    @user_api.response(200, "Success", photo_list_model)
+    def get(tag_id):
+        pass
 
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", tag_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot create theme", message_model)
+    @user_api.response(404, "Not found comment tag this ID", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="name", type=str, location="form", required=True)
+                     )
+    def put(tag_id):
+        pass
 
-# @user_api.route("/user/<int:user_id>")
-# class Temp(Resource):
-#     @staticmethod
-#     def get(user_id):
-#         return f'{user_id}'
-
-
-# @api.route("/registration")
-# class UserRegistration(Resource):
-#     @staticmethod
-#     @api.response(200, "Success")  # add token model
-#     @api.response(400, "Invalid request", message_model)
-#     @api.response(401, "This username is already taken", message_model)
-#     @api.expect(RequestParser()
-#                 .add_argument(name="username", type=str, location="form")
-#                 .add_argument(name="password", type=str, location="form")
-#                 )
-#     @api.doc("asd")
-#     def post():
-#         f = request.form
-#         if not ("username" in f and "password" in f):
-#             return make_response({"message": "Invalid request"}, 400)
-#
-#         username = f["username"]
-#         password = f["password"]
-#         pass
-#         return f'hello'
-#
-#     @staticmethod
-#     @api.doc(security='basicAuth')
-#     def get():
-#         return "protected"
-#
-#
-# @np.route("/search")
-# class Search(Resource):
-#     @staticmethod
-#     @np.expect(RequestParser()
-#                .add_argument(name="user_id", type=int, location="args")
-#                .add_argument(name="album_id", type=int, location="args")
-#                .add_argument(name="theme_id", type=int, location="args")
-#                .add_argument(name="tag_id", type=int, location="args")
-#                .add_argument(name="page", type=int, location="args")
-#                .add_argument(name="amount", type=int, location="args")
-#                )
-#     def get():
-#         args = request.args
-#         DEFAULT_AMOUNT = 10
-#         DEFAULT_PAGE = 1
-#
-#         amount = int(args["amount"]) if "amount" in args else DEFAULT_AMOUNT
-#         page = int(args["page"]) if "page" in args else DEFAULT_PAGE
-#         pass
-#         return f'page:{page} amount:{amount}'
+    @staticmethod
+    @api.doc(security='basicAuth')
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You cannot delete this theme", message_model)
+    @user_api.response(404, "Not found comment tag this ID", message_model)
+    def delete(tag_id):
+        pass
 
 
 if __name__ == "__main__":
