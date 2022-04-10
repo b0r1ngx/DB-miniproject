@@ -6,12 +6,12 @@ from psycopg2.errors import *
 import re
 
 
-def insert_into_users(full_name, email, password, is_admin=False):
-    with Session() as s:
-        # "INSERT INTO users VALUES ({full_name}, {email}, {password}, {is_admin}, {created_at});
-        stmt = (insert(users).values(full_name, email, password, is_admin))
-        s.execute(stmt)
-        s.commit()
+# def insert_into_users(full_name, email, password, is_admin=False):
+#     with Session() as s:
+#         # "INSERT INTO users VALUES ({full_name}, {email}, {password}, {is_admin}, {created_at});
+#         stmt = (insert(users).values(full_name, email, password, is_admin))
+#         s.execute(stmt)
+#         s.commit()
 
 
 def login(email: str, password: str) -> int:
@@ -68,8 +68,9 @@ def registration(full_name, email, password) -> bool:
 
 
 def do_user_have_access_to_other_user_photos(owner: int, viewer: int) -> dict:
-    """
-    Also for albums too
+    """What photos can viewer see at owner (someone)
+
+Also for albums too
     :param owner:
     :param viewer:
     :return: dict: {
@@ -77,12 +78,12 @@ def do_user_have_access_to_other_user_photos(owner: int, viewer: int) -> dict:
                 "full_name": owner.full_name,
                 "email": owner.email,
                 "date": owner.created_at,
-                "photos": list[of owner.photos that accces to viewer]  # TODO get photos that you have access to
-            }
-    """
-
-
-    pass
+                "photos": list[of owner.photos that acccess to viewer]  # TODO get photos that you have access to
+            }"""
+    with Session() as s:
+        s.query(photos)
+        photos = s.execute(stmt)
+    return {"id": 1}
 
 
 
