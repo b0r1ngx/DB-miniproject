@@ -110,3 +110,14 @@ def delete_user(user_id):
     :return:
     """
     pass
+
+
+def change_user(user_id, new_full_name):
+    """
+    Заменить full_name
+    :param user_id:
+    :return:
+    """
+    pass
+
+
