@@ -139,9 +139,9 @@ class Registration(Resource):
     @staticmethod
     @user_api.response(200, "Success", token64_model)
     @user_api.response(400, "Invalid request", message_model)
-    @user_api.response(401, "This username is already taken", message_model)
+    @user_api.response(401, "This email is already taken", message_model)
     @user_api.expect(RequestParser()
-                     .add_argument(name="username", type=str, location="form", required=True)
+                     .add_argument(name="email", type=str, location="form", required=True)
                      .add_argument(name="password", type=str, location="form", required=True)
                      .add_argument(name="full_name", type=str, location="form", required=True)
                      )
@@ -151,12 +151,12 @@ class Registration(Resource):
             return make_response({"message": "Invalid request"}, 400)
         email = f["email"]
         password = f["password"]
-        full_name = f["password"]
+        full_name = f["full_name"]
 
-        is_Correct = True  # TODO(Если такой email уже зарегистрирован False, иначе True)
+        is_Correct = True   # TODO(Если такой email уже зарегистрирован False, иначе True)
         if not is_Correct:
-            return make_response({"message": "This username is already taken"}, 403)
-        # TODO(Магия записи в БД)
+            return make_response({"message": "This email is already taken"}, 403)
+        # TODO(Магия записи в БД) def registration(email, password, full_name)
         token64 = base64.b64encode(f"{email}:{password}".encode('ascii')).decode('ascii')
         return make_response({"token": token64}, 200)
 

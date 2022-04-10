@@ -1,6 +1,6 @@
 from database.db_session import init_database_session, Session
 from database.tables.users import users
-from test import login
+from database import dbi
 
 
 def test():
@@ -20,5 +20,5 @@ def test_query():
 
 if __name__ == "__main__":
     init_database_session()
-    print(login('perkeboring@gmail.com', 'lol'))
-    print(login('perkeboring@gmail.com', 'perkeboring'))
+    print(dbi.login('perkeboring@gmail.com', 'lol'))
+    print(dbi.login('perkeboring@gmail.com', 'perkeboring'))
