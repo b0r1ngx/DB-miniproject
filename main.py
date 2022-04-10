@@ -1,11 +1,16 @@
+# Local
+from database.db_session import init_database_session
+from database import dbi
+
+# stdlib
+import base64
+
+# lib
 from flask import Flask, request, make_response
 from werkzeug.datastructures import FileStorage
 from flask_restx.reqparse import RequestParser
 from flask_restx import Api, fields, Resource
 from flask_cors import CORS
-import base64
-from test import db_login
-from database.db_session import init_database_session
 
 app = Flask(__name__)
 app.secret_key = "secretKey"
@@ -120,7 +125,7 @@ class Login(Resource):
         email = f["email"]
         password = f["password"]
 
-        is_correct = db_login(email, password)
+        is_correct = dbi.login(email, password)
 
         if not is_correct:
             return make_response({"message": "Wrong email or password"}, 403)
