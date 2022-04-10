@@ -48,11 +48,17 @@ def get_user_id(email:str) -> int:
 
 
 def registration(full_name, email, password) -> bool:
+    """
+    INSERT INTO users (full_name, email, password)
+    VALUES ('{full_name}', '{email}', '{password}')
+    :param full_name:
+    :param email:
+    :param password:
+    :return: True - if successfully create account, else False
+    """
     s = Session()
     try:
-        stmt = f'''INSERT INTO users (full_name, email, password) 
-                   VALUES ('{full_name}', '{email}', '{password}')'''
-        s.execute(stmt)
+        s.add(users(full_name, email, password))
         s.commit()
     except:
         return False
@@ -63,6 +69,7 @@ def registration(full_name, email, password) -> bool:
 
 def do_user_have_access_to_other_user_photos(owner: int, viewer: int) -> dict:
     """
+    Also for albums too
     :param owner:
     :param viewer:
     :return: dict: {
@@ -73,7 +80,8 @@ def do_user_have_access_to_other_user_photos(owner: int, viewer: int) -> dict:
                 "photos": list[of owner.photos that accces to viewer]  # TODO get photos that you have access to
             }
     """
-    # also for albums too
+
+
     pass
 
 
