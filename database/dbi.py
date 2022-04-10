@@ -84,6 +84,3 @@ Also for albums too
         s.query(photos)
         photos = s.execute(stmt)
     return {"id": 1}
-
-
-
