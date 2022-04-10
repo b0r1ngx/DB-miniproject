@@ -114,6 +114,7 @@ def requires_auth(f):
         if not auth or not dbi.login(auth.username, auth.password):
             return make_response({"message": "You must be logged in"}, 401)
         return f(*args, **kwargs)
+
     return decorated
 
 
@@ -180,19 +181,22 @@ class User(Resource):
     @user_api.response(200, "Success", user_model)
     @user_api.response(404, "Not found user with this ID", message_model)
     def get(user_id):
+        auth = request.authorization
+        current_user_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+
         is_user_exist = True  # TODO(существует ли пользователь с id) def check_user_exist(id)
         if not is_user_exist:
-            make_response({"message": "Not found user with this ID"}, 403)
+            make_response({"message": "Not found user with this ID"}, 404)
 
-        is_auth = False
-        user = {
+        user = {  # TODO get_user_by_id(user_id, user_id)
             "id": 1,
             "name": fields.String,
             "full_name": fields.String,
             "email": fields.String,
             "date": fields.DateTime,
-            "photos": fields.List(fields.Nested(photo_preview_model))
+            "photos": fields.List(fields.Nested(photo_preview_model))  # TODO get photos that you have access to
         }
+
         pass
 
     @staticmethod
