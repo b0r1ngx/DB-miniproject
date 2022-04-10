@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, orm
+from sqlalchemy import Column, Integer, ForeignKey
 from database.db_session import Base
 from database.tables.themes import themes
 

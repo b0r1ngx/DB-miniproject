@@ -1,21 +1,19 @@
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 from sqlalchemy import create_engine
-
 from constants import db
 
 Base = declarative_base()
-Session: Session
+Session = sessionmaker()
 
 
 def init_database_session():
     engine = create_engine(url=db, echo=False, pool_size=10, max_overflow=0, poolclass=QueuePool, pool_pre_ping=True)
 
     print('Подключение к базе данных')
-    global Session
-    Session = sessionmaker(bind=engine)
+    Session.configure(bind=engine)
 
     if not database_exists(engine.url):
         print('Создание базы данных')
