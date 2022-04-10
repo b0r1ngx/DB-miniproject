@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey,orm
 from database.db_session import Base
+from datetime import datetime as dt
 
 
 class photos(Base):
@@ -14,10 +15,9 @@ class photos(Base):
     place = Column(String)  # I think there may be coordinates "63, 58", and later our service dedicate a place by coords
     description = Column(String)
     private = Column(Boolean, default=False)
-    created_at = Column(DateTime)
+    created_at = Column(DateTime, default=dt.now())
 
     # Relations
-    users = orm.relation("users", backref="photos")
     comments = orm.relation("comments", backref="photos")
     photo_tags = orm.relation("photo_tags", backref="photos")
     photo_themes = orm.relation("photo_themes", backref="photos")

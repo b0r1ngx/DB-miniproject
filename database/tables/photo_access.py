@@ -9,7 +9,3 @@ class photo_access(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     photo_id = Column(Integer, ForeignKey("photos.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
-
-    # Relations
-    photos = orm.relation("photos", backref="photo_access")
-    users = orm.relation("users", backref="photo_access")

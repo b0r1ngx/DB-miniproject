@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, orm
 from database.db_session import Base
+from datetime import datetime as dt
 
 
 class comments(Base):
@@ -10,8 +11,4 @@ class comments(Base):
     photo_id = Column(Integer, ForeignKey("photos.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
     text = Column(String)
-    created_at = Column(DateTime)
-
-    # Relations
-    photos = orm.relation("photos", backref="comments")
-    users = orm.relation("users", backref="comments")
+    created_at = Column(DateTime, default=dt.now())

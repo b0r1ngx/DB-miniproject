@@ -9,9 +9,3 @@ class photo_themes(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     photo_id = Column(Integer, ForeignKey("photos.id"))
     theme_id = Column(Integer, ForeignKey("themes.id"))
-
-    # Relations
-    photos = orm.relation("photos", backref="photo_themes")
-    themes = orm.relation("themes", backref="photo_themes")
-
-

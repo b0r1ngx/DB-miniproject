@@ -9,7 +9,3 @@ class album_photos(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     album_id = Column(Integer, ForeignKey("albums.id"))
     photo_id = Column(Integer, ForeignKey("photos.id"))
-
-    # Relations
-    albums = orm.relation("albums", backref="album_photos")
-    photos = orm.relation("photos", backref="album_photos")

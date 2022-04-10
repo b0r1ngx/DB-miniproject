@@ -1,5 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, orm
 from database.db_session import Base
+from datetime import datetime as dt
+# from .users import users
+# from database.tables.photo_access import photo_access
+# from database.tables.album_access import album_access
 
 
 class albums(Base):
@@ -10,9 +14,8 @@ class albums(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     name = Column(String)
     description = Column(String)
-    created_at = Column(DateTime)
+    created_at = Column(DateTime, default=dt.now())
 
     # Relations
-    users = orm.relation("users", backref="albums")
     album_photos = orm.relation("album_photos", backref="albums")
     album_access = orm.relation("album_access", backref="albums")
