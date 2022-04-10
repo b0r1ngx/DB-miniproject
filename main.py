@@ -13,6 +13,7 @@ from werkzeug.datastructures import FileStorage
 from flask_restx.reqparse import RequestParser
 from flask_restx import Api, fields, Resource
 from flask_cors import CORS
+from helpers import email_is_valid
 
 app = Flask(__name__)
 app.secret_key = "secretKey"
@@ -49,7 +50,6 @@ photo_preview_model = api.model("preview", {
 })
 user_model = api.model("user", {
     "id": fields.Integer,
-    "name": fields.String,
     "full_name": fields.String,
     "email": fields.String,
     "date": fields.DateTime,
@@ -114,7 +114,6 @@ def requires_auth(f):
         if not auth or not dbi.login(auth.username, auth.password):
             return make_response({"message": "You must be logged in"}, 401)
         return f(*args, **kwargs)
-
     return decorated
 
 
@@ -186,31 +185,39 @@ class User(Resource):
 
         is_user_exist = True  # TODO(существует ли пользователь с id) def check_user_exist(id)
         if not is_user_exist:
-            make_response({"message": "Not found user with this ID"}, 404)
+            return make_response({"message": "Not found user with this ID"}, 404)
 
-        user = {  # TODO get_user_by_id(user_id, user_id)
+        user = {  # TODO get_user_by_id(owner_id, viewer_id)
             "id": 1,
-            "name": fields.String,
             "full_name": fields.String,
             "email": fields.String,
             "date": fields.DateTime,
             "photos": fields.List(fields.Nested(photo_preview_model))  # TODO get photos that you have access to
         }
-
         pass
+        return make_response(user, 200)
 
     @staticmethod
     @user_api.doc(doc=False)
     @api.doc(security='basicAuth')
+    @requires_auth
     @user_api.response(200, "Success", message_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot delete users", message_model)
     @user_api.response(404, "Not found user with this ID", message_model)
     def delete(user_id):
-        print(1)
-        print(request.authorization)
-        print(2)
-        pass
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = False # TODO def is_admin(viewer_id) True если админ, False если нет
+
+        is_user_exist = False  # TODO(существует ли пользователь с id) def check_user_exist(id)
+        if not is_user_exist:
+            return make_response({"message": "Not found user with this ID"}, 404)
+
+        if viewer_id == user_id or viewer_is_admin:
+            pass # TODO удаляем пользователя с user_id (?и связанные записи)
+            return make_response({"message": "Success"}, 200)
+
+        return make_response({"message": "You cannot delete users"}, 403)
 
     @staticmethod
     @api.doc(security='basicAuth')
