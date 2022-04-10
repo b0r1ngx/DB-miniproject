@@ -175,10 +175,10 @@ class Registration(Resource):
         password = f["password"]
         full_name = f["full_name"]
 
-        is_Correct = True  # TODO(Если такой email уже зарегистрирован False, иначе True)
-        if not is_Correct:
+        user_id = dbi.get_user_id(email)
+        if user_id:
             return make_response({"message": "This email is already taken"}, 403)
-        # TODO(Магия записи в БД) def registration(email, password, full_name)
+        # TODO(Магия записи в БД)
         token64 = base64.b64encode(f"{email}:{password}".encode('ascii')).decode('ascii')
         return make_response({"token": token64}, 200)
 

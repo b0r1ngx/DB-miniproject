@@ -43,3 +43,12 @@ def get_user_id(email:str) -> int:
         exists = s.execute(stmt)
     for i in exists:
         return i[0]
+
+
+def registration(full_name, email, password) -> bool:
+    with Session() as s:
+        stmt = f'''INSERT INTO users (full_name, email, password) 
+                   VALUES ({full_name}, {email}, {password})'''
+        s.execute(stmt)
+        s.commit()
+    return True
