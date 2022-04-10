@@ -21,3 +21,9 @@ class users(Base):
     comments = orm.relation("comments", backref="users")
     photo_access = orm.relation("photo_access", backref="users")
     album_access = orm.relation("album_access", backref="users")
+
+    def __str__(self):
+        return f"<User ({self.id}) - Full Name: {self.full_name}, email: {self.email}, is_admin: {self.is_admin}>"
+
+    def __repr__(self):
+        return self.__str__()

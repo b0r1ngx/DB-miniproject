@@ -1,12 +1,12 @@
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import QueuePool
 from sqlalchemy import create_engine
 from constants import db
 
 Base = declarative_base()
-Session = sessionmaker()
+Session: Session = sessionmaker()
 
 
 def init_database_session():

@@ -12,7 +12,7 @@ def test():
 
 def test_query():
     with Session() as s:
-        print("SELECT * FROM users:", s.query(users).all())
+        print(s.query(users).all())
 
 
 if __name__ == "__main__":

@@ -57,4 +57,99 @@
     - DELETE	|Удалить тег  
 17. Something else?  
 
+## (Язык SQL DDL)
 
+### Создание БД
+
+Схемы будем описывать в очередности их инициализации в нашей ORM
+Пояснения по работе некоторых конструкций:
+* FOREIGN KEY (param1) REFERENCES table_name.param2 - назначение внешнего ключа к полю param1, по таблице table_name и полю param2 
+
+
+* ON DELETE CASCADE - если в таблице table_name произошло удаление param2, то вся запись должна быть удалена из таблицы
+
+
+* ON DELETE SET NULL - если в таблице table_name произошло удаление param2, то в param1 записываем значение `NULL`
+  (e.g. Например, пользователь был удален, )
+
+```sql
+CREATE DATABASE gallery;
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    full_name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    is_admin BOOLEAN NOT NULL,
+    created_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE themes (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE tags (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE photos (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    url TEXT NOT NULL,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
+    place TEXT NOT NULL,
+    description TEXT,
+    private BOOLEAN NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+);
+
+CREATE TABLE albums (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE comments (
+    id SERIAL PRIMARY KEY,
+    photo_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    text TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE _ (
+    id SERIAL PRIMARY KEY,
+    
+);
+
+CREATE TABLE _ (
+    id SERIAL PRIMARY KEY,
+    
+);
+
+CREATE TABLE _ (
+    id SERIAL PRIMARY KEY,
+    
+);
+
+CREATE TABLE _ (
+    id SERIAL PRIMARY KEY,
+    
+);
+
+CREATE TABLE _ (
+    id SERIAL PRIMARY KEY,
+    
+);
+
+```
+### Наполнение БД данными
