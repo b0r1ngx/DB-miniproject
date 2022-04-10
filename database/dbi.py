@@ -101,3 +101,12 @@ def is_admin(user_id) -> bool:
     :return True: - User is admin
     :return False: - User isn't admin
     """
+
+
+def delete_user(user_id):
+    """
+    Удалить пользователя (все его фото, альбомы и записи о них)
+    :param user_id:
+    :return:
+    """
+    pass

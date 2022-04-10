@@ -114,6 +114,7 @@ def requires_auth(f):
         if not auth or not dbi.login(auth.username, auth.password):
             return make_response({"message": "You must be logged in"}, 401)
         return f(*args, **kwargs)
+
     return decorated
 
 
@@ -188,14 +189,15 @@ class User(Resource):
         if not is_user_exist:
             return make_response({"message": "Not found user with this ID"}, 404)
 
-        user = {  # TODO get_user_by_id(owner_id, viewer_id)
-            "id": 1,
-            "full_name": fields.String,
-            "email": fields.String,
-            "date": fields.DateTime,
-            "photos": fields.List(fields.Nested(photo_preview_model))  # TODO get photos that you have access to
-        }
-        pass
+        user = dbi.do_user_have_access_to_other_user_photos(user_id, current_user_id)
+        #     {  # TODO get_user_by_id(owner_id, viewer_id)
+        #     "id": 1,
+        #     "full_name": fields.String,
+        #     "email": fields.String,
+        #     "date": fields.DateTime,
+        #     "photos": fields.List(fields.Nested(photo_preview_model))  # TODO get photos that you have access to
+        # }
+        pass  # TODO Преобразовать user к dict правильной формы
         return make_response(user, 200)
 
     @staticmethod
@@ -215,7 +217,7 @@ class User(Resource):
             return make_response({"message": "Not found user with this ID"}, 404)
 
         if viewer_id == user_id or viewer_is_admin:
-            pass # TODO удаляем пользователя с user_id (?и связанные записи)
+            dbi.delete_user(user_id)  # TODO check
             return make_response({"message": "Success"}, 200)
 
         return make_response({"message": "You cannot delete users"}, 403)
@@ -236,17 +238,15 @@ class User(Resource):
         if "full_name" not in f:
             return make_response({"message": "Invalid request"}, 400)
         viewer_id = dbi.get_user_id(request.authorization.username)
-        viewer_is_admin = False  # TODO def is_admin(viewer_id) True если админ, False если нет
+        viewer_is_admin = dbi.is_admin(viewer_id) # TODO check
         is_user_exist = False  # TODO(существует ли пользователь с id) def check_user_exist(id)
         if not is_user_exist:
             return make_response({"message": "Not found user with this ID"}, 404)
 
         if viewer_id == user_id or viewer_is_admin:
-            pass # TODO удаляем пользователя с user_id (?и связанные записи)
+            pass  # TODO удаляем пользователя с user_id (?и связанные записи)
             return make_response({"message": "Success"}, 200)
         return make_response({"message": "You cannot delete users"}, 403)
-
-
 
 
 @user_api.route("/user/<int:user_id>/album")
