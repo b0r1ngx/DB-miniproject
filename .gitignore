@@ -1,5 +1,5 @@
 ### Python template
-constants.py
+!/constants.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -143,4 +143,3 @@ cython_debug/
 # idea config
 .idea
 idea/
-
