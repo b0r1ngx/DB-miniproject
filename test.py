@@ -12,15 +12,15 @@ def test():
         s.commit()
 
 
-def test_query():
+def select_from_users() -> list:
     with Session() as s:
         user_list = s.query(users).all()
-        print(user_list)
+    return user_list
 
 
 if __name__ == "__main__":
     init_database_session()
-
+    print(select_from_users())
     # print(dbi.login('perkeboring@gmail.com', 'lol'))
     # print(dbi.login('perkeboring@gmail.com', 'perkeboring'))
     # print(email_exists('perkeboring@gmail.com'))
@@ -28,4 +28,4 @@ if __name__ == "__main__":
     # test_query()
     # print(is_admin(1))
     print(change_user(2, full_name="IAT", email="some@mail.com", password="zxc"))
-    test_query()
+    print(select_from_users())
