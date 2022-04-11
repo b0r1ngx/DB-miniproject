@@ -62,15 +62,15 @@ def registration(full_name, email, password) -> bool:
     """
     s = Session()
     try:
-        s.add(users(full_name, email, password))
+        s.add(users(full_name=full_name, email=email, password=password))
         s.commit()
-    except:
-        return False
-    # except BaseException as e:
-    #     if e == psycopg2.errors.UniqueViolation:
-    #         return False
-    #     else:
-    #         raise Exception("Something goes wrong at dbi.registration()")
+    except BaseException as e:
+        e = type(e)
+        print(e)
+        if e is type(UniqueViolation) or e is type(IntegrityError):
+            return False
+        else:
+            raise Exception("Something goes wrong at dbi.registration()")
     finally:
         s.close()
     return True
@@ -180,7 +180,19 @@ def get_albums_by_user_id(owner_id: int, viewer_id: int) -> list[albums]:
     """
 
 
-def create_album(user_id, name, description):
+def is_album_name_not_exists(user_id: int, name: str) -> bool:
+    with Session() as s:
+        stmt = f'''SELECT name FROM albums
+                   WHERE user_id = {user_id} 
+                   AND name = '{name}\''''
+        exists = s.execute(stmt)
+    for i in exists:
+        if i[0]:
+            return False
+    return True
+
+
+def create_album(user_id: int, name: str, description: str) -> bool:
     """
     Создать новый альбом
     :param user_id:
@@ -188,7 +200,13 @@ def create_album(user_id, name, description):
     :param description:
     :return:
     """
-    pass
+    with Session() as s:
+        if is_album_name_not_exists(user_id, name):
+            s.add(albums(used_id=user_id, name=name, description=description))
+            s.commit()
+        else:
+            return False
+    return True
 
 
 def check_album_exist(user_id, album_id) -> bool:
