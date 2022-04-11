@@ -1,3 +1,5 @@
+import psycopg2.errors
+
 from database.db_session import Session
 from database.tables.users import users
 from database.tables.photos import photos
@@ -62,8 +64,13 @@ def registration(full_name, email, password) -> bool:
     try:
         s.add(users(full_name, email, password))
         s.commit()
-    except DatabaseError:
+    except:
         return False
+    # except BaseException as e:
+    #     if e == psycopg2.errors.UniqueViolation:
+    #         return False
+    #     else:
+    #         raise Exception("Something goes wrong at dbi.registration()")
     finally:
         s.close()
     return True
