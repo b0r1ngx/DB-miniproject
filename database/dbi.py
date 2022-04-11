@@ -1,5 +1,3 @@
-import psycopg2.errors
-
 from database.db_session import Session
 from database.tables.users import users
 from database.tables.photos import photos
@@ -7,7 +5,6 @@ from database.tables.albums import albums
 from sqlalchemy import insert
 from psycopg2.errors import *
 from sqlalchemy.exc import *
-import re
 
 
 # def insert_into_users(full_name, email, password, is_admin=False):
