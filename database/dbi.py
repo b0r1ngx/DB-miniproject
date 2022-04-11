@@ -80,9 +80,9 @@ Also for albums too
                 "date": owner.created_at,
                 "photos": list[of owner.photos that acccess to viewer]  # TODO get photos that you have access to
             }"""
-    with Session() as s:
-        s.query(photos)
-        photos = s.execute(stmt)
+    # with Session() as s:
+    #     s.query(photos)
+    #     photos = s.execute(stmt)
     return {"id": 1}
 
 
@@ -124,12 +124,27 @@ def delete_user(user_id):
     pass
 
 
-def change_user(user_id, new_full_name):
+def change_user(user_id: int, full_name: str = None, email: str = None, password: str = None):
     """
     Заменить full_name
+    :param password:
+    :param email:
+    :param full_name:
     :param user_id:
     :return:
     """
     pass
 
 
+def get_albums_by_user_id(owner_id, viewer_id):
+    """
+    Получить все альбомы owner'а, которые доступны viewer'у
+    :param owner_id:
+    :param viewer_id:
+    :return: {
+                "list" : [{
+                        "id": Int
+                        "name": String
+                       }]
+            }
+    """
