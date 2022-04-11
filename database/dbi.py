@@ -79,6 +79,7 @@ def registration(full_name, email, password) -> bool:
 def get_photos_by_user_id(owner_id: int, viewer_id: int) -> list[photos]:
     pass
 
+
 def do_user_have_access_to_other_user_photos(owner_id: int, viewer_id: int) -> dict:
     """What photos can viewer see at owner (someone)
 
@@ -159,6 +160,8 @@ def change_user(user_id: int, full_name: str = None, email: str = None, password
         s.commit()
     return True
 
+## Альбомы
+
 
 def get_albums_by_user_id(owner_id: int, viewer_id: int) -> list[albums]:
     """Получить все альбомы owner'а, которые доступны viewer'у
@@ -177,3 +180,69 @@ def get_albums_by_user_id(owner_id: int, viewer_id: int) -> list[albums]:
                     ...
                 }]
     """
+
+
+def create_album(user_id, name, description):
+    """
+    Создать новый альбом
+    :param user_id:
+    :param name:
+    :param description:
+    :return:
+    """
+    pass
+
+
+def check_album_exist(user_id, album_id) -> bool:
+    """
+    Проверить существует ли альбом
+    с указанным album_id принадлежащий пользователю
+    с указанным user_id
+    :param user_id:
+    :param album_id:
+    :return:
+    """
+    pass
+
+
+def get_album_access(user_id, album_id) -> bool:
+    """
+    Имеет ли пользователь с указанным
+    user_id доступ к альбому с указанным
+    album_id
+    :param user_id:
+    :param album_id:
+    :return:
+    """
+    pass
+
+
+def get_album(album_id):
+    """
+
+    :param album_id:
+    :return:
+    """
+    pass
+
+
+def change_album(album_id, name=None, description=None):
+    """
+    Изменить альбом с указанным album_id
+    :param album_id:
+    :param name:
+    :param description:
+    :return:
+    """
+    pass
+
+
+def delete_album(album_id):
+    """
+    Удалить альбом (что с фото?)
+    :param album_id:
+    :return:
+    """
+    pass
+
+
