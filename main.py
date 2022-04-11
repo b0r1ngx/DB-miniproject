@@ -143,6 +143,16 @@ def check_photo_exist(photo_id):
         return make_response({"message": "Not found photo with this ID"}, 404)
 
 
+def check_theme_exist(theme_id):
+    if not dbi.check_theme_exist(theme_id):  # TODO check check_photo_exist
+        return make_response({"message": "Not found theme with this ID"}, 404)
+
+
+def check_tag_exist(tag_id):
+    if not dbi.check_tag_exist(tag_id):  # TODO check check_photo_exist
+        return make_response({"message": "Not found tag with this ID"}, 404)
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -323,7 +333,7 @@ class UserAlbum(Resource):
         name = f["full_name"]
         description = None if "description" not in f else f["description"]
 
-        if viewer_id == user_id or viewer_is_admin:
+        if viewer_id == user_id:
             album = dbi.create_album(user_id, name=name, description=description)
             # TODO check create_album
             return make_response({"message": "Success"}, 200)
@@ -638,7 +648,7 @@ class Comment(Resource):
         # TODO check get_access_to_photo_by_user_id
 
         if is_access or viewer_is_admin:
-            dbi.add_comment(viewer_id, photo_id, text) # TODO check add_comment
+            dbi.add_comment(viewer_id, photo_id, text)  # TODO check add_comment
             return make_response({"message": "Success"}, 200)
         return make_response({"message": "You do not have access to this photo"}, 403)
 
@@ -676,7 +686,7 @@ class Theme(Resource):
     @user_api.doc(description="Получить список тем")
     @user_api.response(200, "Success", theme_list_model)
     def get():
-        theme_list = dbi.get_theme_list() # TODO check get_theme_list
+        theme_list = dbi.get_theme_list()  # TODO check get_theme_list
         # TODO Форматировать
         return make_response(theme_list, 200)
 
@@ -702,13 +712,14 @@ class Theme(Resource):
 
         if viewer_is_admin:
             dbi.create_theme(theme_name)  # TODO check create_theme
-            return make_response({"message": "Success"}, 200) # TODO Возвращать мб id?
+            return make_response({"message": "Success"}, 200)  # TODO Возвращать мб id?
 
         return make_response({"message": "You cannot create theme"}, 403)
 
 
 @user_api.route("/theme/<int:theme_id>")
 @admin_api.route("/theme/<int:theme_id>")
+@user_api.response(404, "Not found theme with this ID", message_model)
 class ThemeID(Resource):
     @staticmethod
     @user_api.response(200, "Success", photo_list_model)
@@ -759,7 +770,8 @@ class Tag(Resource):
 
 
 @user_api.route("/tag/<int:tag_id>")
-class TageID(Resource):
+@user_api.response(404, "Not found theme with this ID", message_model)
+class TagID(Resource):
     @staticmethod
     @user_api.response(200, "Success", photo_list_model)
     def get(tag_id):
