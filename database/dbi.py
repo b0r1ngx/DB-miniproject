@@ -400,6 +400,26 @@ def get_theme_list():
     pass
 
 
+def check_theme_exist(theme_id):
+    """
+    Существует ли тема с таким id
+    get
+    :param theme_id:
+    :return:
+    """
+    pass
+
+
+def check_tag_exist(tag_id):
+    """
+    Существует ли тема с таким id
+    get
+    :param theme_id:
+    :return:
+    """
+    pass
+
+
 def create_theme(name):
     """
 
