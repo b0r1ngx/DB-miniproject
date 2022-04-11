@@ -305,43 +305,87 @@ def create_photo(user_id: int, url: str, description: str, album_list: list[int]
         s.commit()
 
 
-
-
-def albums_exist(album_list):
-    """
+def albums_exist(album_list: list[int]) -> bool:
+    """+
     Проверить все ли альбомы из списка существуют
     :param album_list:
     :return:
     """
-    pass
+    size = len(album_list)
+    if size == 1:
+        condition = f"({album_list[0]})"
+    else:
+        album_list = tuple(album_list)
+        condition = f"{album_list}"
+
+    with Session() as s:
+        stmt = f'''SELECT count(*) from albums
+                   WHERE id IN {condition}'''
+        count = s.execute(stmt)
+    for i in count:
+        if i[0] != size:
+            return False
+    return True
 
 
-def tags_exist(album_list):
-    """
+def tags_exist(tag_list: list[int]) -> bool:
+    """+
     Проверить все ли теги из списка существуют
-    :param album_list:
+    :param tag_list:
     :return:
     """
-    pass
+    size = len(tag_list)
+    if size == 1:
+        condition = f"({tag_list[0]})"
+    else:
+        tag_list = tuple(tag_list)
+        condition = f"{tag_list}"
+
+    with Session() as s:
+        stmt = f'''SELECT count(*) from tags
+                   WHERE id IN {condition}'''
+        count = s.execute(stmt)
+    for i in count:
+        if i[0] != size:
+            return False
+    return True
 
 
-def themes_exist(album_list):
-    """
+def themes_exist(theme_list: list[int]) -> bool:
+    """+
     Проверить все ли темы из списка существуют
-    :param album_list:
+    :param theme_list:
     :return:
     """
-    pass
+    size = len(theme_list)
+    if size == 1:
+        condition = f"({theme_list[0]})"
+    else:
+        theme_list = tuple(theme_list)
+        condition = f"{theme_list}"
+
+    with Session() as s:
+        stmt = f'''SELECT count(*) FROM themes
+                   WHERE id IN {condition}'''
+        count = s.execute(stmt)
+    for i in count:
+        if i[0] != size:
+            return False
+    return True
 
 
-def get_photo(photo_id, viewer_id):
+def get_photo(photo_id: int, viewer_id: int):
     """
     Получить фото, если есть доступ
     :param photo_id:
     :param viewer_id:
     :return:
     """
-    pass
+    with Session() as s:
+        stmt = f'''SELECT * FROM photos
+                   LEFT JOIN photo_access pa USING ()
+                   '''
+
 
 
 def is_photo_exist(photo_id):
