@@ -12,12 +12,6 @@ def insert_into_users():
         s.commit()
 
 
-def select_all_from(table) -> list:
-    with Session() as s:
-        user_list = s.query(table).all()
-    return user_list
-
-
 if __name__ == "__main__":
     init_database_session()
     print(select_all_from(users))
@@ -30,8 +24,8 @@ if __name__ == "__main__":
     # print(is_album_name_not_exists(1, 'Best Album'))
     # print(select_all_from(albums))
     # print(check_album_exist(1, 1))
-    print(get_album_access(1, 1))
+    # print(get_album_access(1, 1))
     # test_query()
-    # print(is_admin(1))
+    print(is_admin(13))
     # print(change_user(2, full_name="IAT", email="some@mail.com", password="zxc"))
-    # print(select_all_from(users))
+    print(type(select_all_from(users)))

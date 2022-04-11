@@ -128,18 +128,18 @@ def requires_auth(f):
 
 def check_user_exist(user_id):
     # TODO check check_user_exist
-    if not dbi.check_user_exist(user_id):
+    if not dbi.is_user_exist(user_id):
         return make_response({"message": "Not found user with this ID"}, 404)
 
 
 def check_album_exist(user_id, album_id):
     # TODO check check_user_exist
-    if not dbi.check_album_exist(user_id, album_id):
+    if not dbi.is_album_exist(user_id, album_id):
         return make_response({"message": "Not found album with this ID"}, 404)
 
 
 def check_photo_exist(photo_id):
-    if not dbi.check_photo_exist(photo_id):  # TODO check check_photo_exist
+    if not dbi.is_photo_exist(photo_id):  # TODO check check_photo_exist
         return make_response({"message": "Not found photo with this ID"}, 404)
 
 

@@ -7,6 +7,10 @@ from psycopg2.errors import *
 from sqlalchemy.exc import *
 
 
+def select_all_from(table) -> list:
+    with Session() as s:
+        user_list = s.query(table).all()
+    return user_list
 # def insert_into_users(full_name, email, password, is_admin=False):
 #     with Session() as s:
 #         # "INSERT INTO users VALUES ({full_name}, {email}, {password}, {is_admin}, {created_at});
@@ -16,7 +20,7 @@ from sqlalchemy.exc import *
 
 
 def login(email: str, password: str) -> int:
-    """
+    """ +
     :param email: user email
     :param password: user password
     :return: -1 - reserved (for if email found, but password is wrong);
@@ -35,7 +39,7 @@ def login(email: str, password: str) -> int:
 
 
 def get_user_id(email: str) -> int:
-    """
+    """ +
     Also can be used on registration() when need to check if user exists
     :param email:
     :return:
@@ -49,7 +53,7 @@ def get_user_id(email: str) -> int:
 
 
 def registration(full_name, email, password) -> bool:
-    """
+    """ +
     INSERT INTO users (full_name, email, password)
     VALUES ('{full_name}', '{email}', '{password}')
     :param full_name:
@@ -97,8 +101,8 @@ Also for albums too
     return {"id": 1}
 
 
-def check_user_exist(user_id: int) -> bool:
-    """
+def is_user_exist(user_id: int) -> bool:
+    """ +
     :param user_id:
     :return: True - if user exists, else False
     """
@@ -113,8 +117,7 @@ def check_user_exist(user_id: int) -> bool:
 
 
 def is_admin(user_id: int) -> bool:
-    """
-    hi
+    """ +
     :param user_id: ,
     :return: True - if user admin, else False
     """
@@ -136,7 +139,7 @@ def delete_user(user_id):
 
 
 def change_user(user_id: int, full_name: str = None, email: str = None, password: str = None) -> bool:
-    """
+    """ +
     :param user_id:
     :param full_name:
     :param email:
@@ -176,9 +179,15 @@ def get_albums_by_user_id(owner_id: int, viewer_id: int) -> list[albums]:
                     ...
                 }]
     """
+    pass
 
 
 def is_album_name_not_exists(user_id: int, name: str) -> bool:
+    """+
+    :param user_id:
+    :param name:
+    :return:
+    """
     with Session() as s:
         stmt = f'''SELECT * FROM albums
                    WHERE user_id = {user_id} 
@@ -191,7 +200,7 @@ def is_album_name_not_exists(user_id: int, name: str) -> bool:
 
 
 def create_album(user_id: int, name: str, description: str) -> bool:
-    """
+    """+
     Создать новый альбом
     :param user_id:
     :param name:
@@ -207,8 +216,8 @@ def create_album(user_id: int, name: str, description: str) -> bool:
     return True
 
 
-def check_album_exist(user_id: int, album_id: int) -> bool:
-    """
+def is_album_exist(user_id: int, album_id: int) -> bool:
+    """+
     Проверить существует ли альбом
     с указанным album_id принадлежащий пользователю
     с указанным user_id
@@ -228,7 +237,7 @@ def check_album_exist(user_id: int, album_id: int) -> bool:
 
 
 def get_album_access(user_id: int, album_id: int) -> bool:
-    """
+    """+
     Имеет ли пользователь с указанным user_id
     доступ к альбому с указанным album_id
     :param user_id:
@@ -326,7 +335,7 @@ def get_photo(photo_id, viewer_id):
     pass
 
 
-def check_photo_exist(photo_id):
+def is_photo_exist(photo_id):
     """
     Существует ли фото с указанным id
     :param photo_id:
