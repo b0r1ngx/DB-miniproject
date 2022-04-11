@@ -136,7 +136,7 @@ def change_user(user_id: int, full_name: str = None, email: str = None, password
         set = f'''SET full_name = '{full_name}',
                       email = '{email}',
                       password = '{password}\''''
-    if full_name and email:
+    elif full_name and email:
         set = f'''SET full_name = '{full_name}',
                       email = '{email}\''''
     elif full_name and password:
