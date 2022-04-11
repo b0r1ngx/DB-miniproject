@@ -27,22 +27,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# app.add_url_rule('/uploads/<filename>', 'uploaded_file',
-#                  build_only=True)
-# app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
-#     '/uploads':  app.config['UPLOAD_FOLDER']
-# })
-# app.add_url_rule(
-#     "/uploads/<name>", endpoint="download_file"
-#     # , build_only=True
-# )
 CORS(app)
-
-# authorizations = {
-#     'basicAuth': {
-#         'type': 'basic'
-#     }
-# }
 
 api = Api(
     app,
@@ -151,6 +136,11 @@ def check_album_exist(user_id, album_id):
     # TODO check check_user_exist
     if not dbi.check_album_exist(user_id, album_id):
         return make_response({"message": "Not found album with this ID"}, 404)
+
+
+def check_photo_exist(photo_id):
+    if not dbi.check_photo_exist(photo_id):  # TODO check check_photo_exist
+        return make_response({"message": "Not found photo with this ID"}, 404)
 
 
 def allowed_file(filename):
@@ -328,10 +318,8 @@ class UserAlbum(Resource):
         viewer_is_admin = dbi.is_admin(viewer_id)
 
         f = request.form
-
         if "name" not in f:
             return make_response({"message": "Invalid request"}, 400)
-
         name = f["full_name"]
         description = None if "description" not in f else f["description"]
 
@@ -462,18 +450,17 @@ class Photo(Resource):
         if "file" not in request.files:
             return make_response({"message": "Invalid request"}, 400)
         file = request.files["file"]
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            while os.path.exists(path):
-                filename = str(viewer_id) + filename
-                path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(path)
 
-            new_url = api.url_for(UploadedFile, filename=filename)
-            print(new_url)
-        else:
+        if not (file and allowed_file(file.filename)):
             return make_response({"message": "Invalid request"}, 400)
+
+        filename = secure_filename(file.filename)
+        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        while os.path.exists(path):
+            filename = str(viewer_id) + filename
+            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        new_url = api.url_for(UploadFile, filename=filename)
 
         if is_private and (not (album_list or tag_list or theme_list)):
             return make_response({"message": "Invalid request"}, 400)
@@ -488,17 +475,18 @@ class Photo(Resource):
             return make_response({"message": "Invalid request"}, 400)
 
         photo = dbi.create_photo(viewer_id,
+                                 url=new_url,
                                  description=description,
                                  album_list=album_list,
                                  tag_list=tag_list,
                                  theme_list=theme_list,
-                                 is_private=is_private)
+                                 is_private=is_private)  # TODO check create_photo
         # TODO Преобразовать к формату
         return make_response(photo, 200)
 
 
 @api.route("/uploads/<filename>", doc=False)
-class UploadedFile(Resource):
+class UploadFile(Resource):
     @staticmethod
     def get(filename):
         print(filename)
@@ -507,18 +495,26 @@ class UploadedFile(Resource):
 
 
 @user_api.route("/photo/<int:photo_id>")
+@user_api.response(404, "Not found photo with this ID", message_model)
 class PhotoID(Resource):
     @staticmethod
+    @user_api.doc(description="Получить полную информацию о фото")
     @user_api.response(200, "Success", photo_model)
     def get(photo_id):
-        pass
+        check_photo_exist(photo_id)
+
+        auth = request.authorization
+        viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+
+        photo = dbi.get_photo(photo_id, viewer_id)
+        # TODO преобразовать к нужному формату
+        return make_response(photo, 200)
 
     @staticmethod
-    @api.doc(security='basicAuth')
+    @user_api.doc(description="Изменить информацию о фото")
+    @requires_auth
     @user_api.response(200, "Success", photo_model)
-    @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot update this photo", message_model)
-    @user_api.response(404, "Not found photo with this ID", message_model)
     @user_api.expect(RequestParser()
                      .add_argument(name="description", type=str, location="form")
                      .add_argument(name="albums", type=int, location="form", action="append")
@@ -533,76 +529,93 @@ class PhotoID(Resource):
         pass
 
     @staticmethod
-    @api.doc(security='basicAuth')
+    @user_api.doc(description="Удалить фото")
+    @requires_auth
     @user_api.response(200, "Success", message_model)
-    @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot delete this photo", message_model)
-    @user_api.response(404, "Not found photo with this ID", message_model)
     def delete(photo_id):
         pass
 
 
 @user_api.route("/photo/<int:photo_id>/accessList")
+@user_api.response(404, "Not found photo with this ID", message_model)
 class AccessList(Resource):
     @staticmethod
-    @api.doc(security='basicAuth')
+    @user_api.doc(description="Получить список пользователей с доступом к фото")
+    @requires_auth
     @user_api.response(200, "Success", int_list_model)
-    @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot get this list", message_model)
-    @user_api.response(404, "Not found photo with this ID", message_model)
     def get(photo_id):
-        pass
+        check_photo_exist(photo_id)
+
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
+
+        user_id = dbi.get_user_id_by_photo_id(photo_id)  # TODO check get_user_id_by_photo_id
+        if viewer_id == user_id or viewer_is_admin:
+            photo_acces_list = dbi.get_photo_access_list(photo_id)  # TODO check get_photo_access_list
+            return make_response({"message": "Success"}, 200)
+
+        return make_response({"message": "You cannot get this list"}, 403)
 
     @staticmethod
-    @api.doc(security='basicAuth')
+    @user_api.doc(description="Установить список пользователей с доступом к фото")
+    @requires_auth
     @user_api.response(200, "Success", int_list_model)
-    @user_api.response(401, "You must be logged in", message_model)
-    @user_api.response(403, "You cannot create this list", message_model)
-    @user_api.response(404, "Not found photo with this ID", message_model)
+    @user_api.response(403, "You cannot interact with this list", message_model)
     @user_api.expect(RequestParser()
                      .add_argument(name="user_ids", type=int, location="form", action="append", required=True)
                      )
     def post(photo_id):
-        pass
+        check_photo_exist(photo_id)
 
-    @staticmethod
-    @api.doc(security='basicAuth')
-    @user_api.response(200, "Success", int_list_model)
-    @user_api.response(401, "You must be logged in", message_model)
-    @user_api.response(403, "You cannot update this list", message_model)
-    @user_api.response(404, "Not found photo with this ID", message_model)
-    @user_api.expect(RequestParser()
-                     .add_argument(name="user_ids", type=int, location="form", action="append", required=True)
-                     )
-    def put(photo_id):
-        pass
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        f = request.form
+        if "user_ids" not in f:
+            return make_response({"message": "Invalid request"}, 400)
+        user_id_list = f["user_ids"]
+
+        user_id = dbi.get_user_id_by_photo_id(photo_id)  # TODO check get_user_id_by_photo_id
+
+        if viewer_id == user_id or viewer_is_admin:
+            dbi.set_photo_access_list(photo_id, user_id_list)
+            # TODO check set_photo_access_list
+            return make_response({"message": "Success"}, 200)
+
+        return make_response({"message": "You cannot set this list"}, 403)
 
 
-@user_api.route("/photo/<int:photo_id>/accessList/<int:user_id>")
-class AccessListID(Resource):
-    @staticmethod
-    @api.doc(security='basicAuth')
-    @user_api.response(200, "Success", message_model)
-    @user_api.response(401, "You must be logged in", message_model)
-    @user_api.response(403, "You cannot change this", message_model)
-    @user_api.response(404, "Not found photo with this ID", message_model)
-    def delete(photo_id, user_id):
-        pass
-
-    @staticmethod
-    @api.doc(security='basicAuth')
-    @user_api.response(200, "Success", message_model)
-    @user_api.response(401, "You must be logged in", message_model)
-    @user_api.response(403, "You cannot change this", message_model)
-    @user_api.response(404, "Not found photo with this ID", message_model)
-    def put(photo_id, user_id):
-        pass
+# @user_api.route("/photo/<int:photo_id>/accessList/<int:user_id>")
+# @user_api.response(404, "Not found photo with this ID", message_model)
+# @user_api.response(404, "Not found user with this ID in list", message_model)
+# class AccessListID(Resource):
+#     @staticmethod
+#     @user_api.doc(description="Удалить пользователя из списка доступа к фото")
+#     @requires_auth
+#     @user_api.response(200, "Success", message_model)
+#     @user_api.response(403, "You cannot change this", message_model)
+#     @user_api.response(404, "Not found photo with this ID", message_model)
+#     def delete(photo_id, user_id):
+#         check_photo_exist(photo_id)
+#         pass
+#
+#     @staticmethod
+#     @api.doc(security='basicAuth')
+#     @user_api.response(200, "Success", message_model)
+#     @user_api.response(401, "You must be logged in", message_model)
+#     @user_api.response(403, "You cannot change this", message_model)
+#     @user_api.response(404, "Not found photo with this ID", message_model)
+#     def post(photo_id, user_id):
+#         pass
 
 
 @user_api.route("/photo/<int:photo_id>/comment")
 class Comment(Resource):
     @staticmethod
-    @api.doc(security='basicAuth')
+    @user_api.doc(description="Написать комментарий")
+    @requires_auth
     @user_api.response(200, "Success", comment_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You do not have access to this photo", message_model)
@@ -611,7 +624,23 @@ class Comment(Resource):
                      .add_argument(name="text", type=str, location="form", required=True)
                      )
     def post(photo_id):
-        pass
+        check_photo_exist(photo_id)
+
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        f = request.form
+        if "text" not in f:
+            return make_response({"message": "Invalid request"}, 400)
+        text = f["text"]
+
+        is_access = dbi.get_access_to_photo_by_user_id(photo_id, viewer_id)
+        # TODO check get_access_to_photo_by_user_id
+
+        if is_access or viewer_is_admin:
+            dbi.add_comment(viewer_id, photo_id, text) # TODO check add_comment
+            return make_response({"message": "Success"}, 200)
+        return make_response({"message": "You do not have access to this photo"}, 403)
 
 
 @user_api.route("/photo/<int:photo_id>/comment/<int:comment_id>")
@@ -644,12 +673,16 @@ class CommentID(Resource):
 @admin_api.route("/theme")
 class Theme(Resource):
     @staticmethod
+    @user_api.doc(description="Получить список тем")
     @user_api.response(200, "Success", theme_list_model)
     def get():
-        pass
+        theme_list = dbi.get_theme_list() # TODO check get_theme_list
+        # TODO Форматировать
+        return make_response(theme_list, 200)
 
     @staticmethod
-    @api.doc(security='basicAuth')
+    @user_api.doc(description="Создать новую тему")
+    @requires_auth
     @user_api.doc(doc=False)
     @user_api.response(200, "Success", theme_model)
     @user_api.response(401, "You must be logged in", message_model)
@@ -658,7 +691,20 @@ class Theme(Resource):
                      .add_argument(name="name", type=str, location="form", required=True)
                      )
     def post():
-        pass
+
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        f = request.form
+        if "name" not in f:
+            return make_response({"message": "Invalid request"}, 400)
+        theme_name = f["name"]
+
+        if viewer_is_admin:
+            dbi.create_theme(theme_name)  # TODO check create_theme
+            return make_response({"message": "Success"}, 200) # TODO Возвращать мб id?
+
+        return make_response({"message": "You cannot create theme"}, 403)
 
 
 @user_api.route("/theme/<int:theme_id>")

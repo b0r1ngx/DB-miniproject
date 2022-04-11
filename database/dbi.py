@@ -244,7 +244,7 @@ def delete_album(album_id):
     pass
 
 
-def create_photo(user_id, description, album_list, tag_list, theme_list, is_private):
+def create_photo(user_id, url, description, album_list, tag_list, theme_list, is_private):
     """
     Создать фото и установить необходимые доступы
     :param user_id:
@@ -280,6 +280,90 @@ def themes_exist(album_list):
     """
     Проверить все ли темы из списка существуют
     :param album_list:
+    :return:
+    """
+    pass
+
+
+def get_photo(photo_id, viewer_id):
+    """
+    Получить фото, если есть доступ
+    :param photo_id:
+    :param viewer_id:
+    :return:
+    """
+    pass
+
+
+def check_photo_exist(photo_id):
+    """
+    Существует ли фото с указанным id
+    :param photo_id:
+    :return:
+    """
+    pass
+
+
+def get_photo_access_list(photo_id):
+    """
+    Получить список пользователей, которым доступно фото
+    :param photo_id:
+    :param viewer_id:
+    :return:
+    """
+
+
+def get_user_id_by_photo_id(photo_id):
+    """
+    Получить id владельца фото
+    :param photo_id:
+    :return:
+    """
+    pass
+
+
+def set_photo_access_list(photo_id, user_id_list):
+    """
+    Установить доступ к фото пользователям
+    из user_id_list
+    :param photo_id:
+    :param user_id_list:
+    :return:
+    """
+
+
+def get_access_to_photo_by_user_id(photo_id, viewer_id):
+    """
+    Имеет ли пользователь с viewer_id досуп
+    к фото с photo_id&
+    :param photo_id:
+    :param viewer_id:
+    :return:
+    """
+    pass
+
+
+def add_comment(commentator_id, photo_id, text):
+    """
+    Добавить новый комментарий к фото
+    :param commentator_id:
+    :param photo_id:
+    :return:
+    """
+
+
+def get_theme_list():
+    """
+    Получить список существующих тем
+    :return:
+    """
+    pass
+
+
+def create_theme(name):
+    """
+
+    :param name:
     :return:
     """
     pass
