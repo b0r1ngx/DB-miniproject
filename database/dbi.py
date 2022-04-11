@@ -202,7 +202,7 @@ def create_album(user_id: int, name: str, description: str) -> bool:
     """
     with Session() as s:
         if is_album_name_not_exists(user_id, name):
-            s.add(albums(used_id=user_id, name=name, description=description))
+            s.add(albums(user_id=user_id, name=name, description=description))
             s.commit()
         else:
             return False
