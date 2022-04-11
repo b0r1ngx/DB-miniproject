@@ -26,4 +26,5 @@ if __name__ == "__main__":
     # print(email_exists('perkeboring@gmail.com'))
     # print(registration('privet poka', 'privet@poka.ru', 'lol'))
     # test_query()
-    print(is_admin(1))
+    # print(is_admin(1))
+    # print(change_user(1, full_name="Kirill Ivanov Alekseevich"))
