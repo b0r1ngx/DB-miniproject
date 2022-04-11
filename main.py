@@ -722,51 +722,70 @@ class Theme(Resource):
 @user_api.response(404, "Not found theme with this ID", message_model)
 class ThemeID(Resource):
     @staticmethod
+    @user_api.doc(description="Получит все доступные фото с темой")
     @user_api.response(200, "Success", photo_list_model)
     def get(theme_id):
-        pass
+        check_theme_exist(theme_id)
 
-    @staticmethod
-    @api.doc(security='basicAuth')
-    @user_api.doc(doc=False)
-    @user_api.response(200, "Success", theme_model)
-    @user_api.response(401, "You must be logged in", message_model)
-    @user_api.response(403, "You cannot create theme", message_model)
-    @user_api.response(404, "Not found comment theme this ID", message_model)
-    @user_api.expect(RequestParser()
-                     .add_argument(name="name", type=str, location="form", required=True)
-                     )
-    def put(theme_id):
-        pass
+        auth = request.authorization
+        viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+        photo_list = dbi.get_photos_by_theme(theme_id, viewer_id)
+        # TODO преобразовать
+        return make_response(photo_list, 200)
 
-    @staticmethod
-    @api.doc(security='basicAuth')
-    @user_api.doc(doc=False)
-    @user_api.response(200, "Success", message_model)
-    @user_api.response(401, "You must be logged in", message_model)
-    @user_api.response(403, "You cannot delete this theme", message_model)
-    @user_api.response(404, "Not found comment theme this ID", message_model)
-    def delete(theme_id):
-        pass
+    # @staticmethod
+    #
+    # @requires_auth
+    # @user_api.doc(doc=False)
+    # @user_api.response(200, "Success", theme_model)
+    # @user_api.response(401, "You must be logged in", message_model)
+    # @user_api.response(403, "You cannot create theme", message_model)
+    # @user_api.response(404, "Not found comment theme this ID", message_model)
+    # @user_api.expect(RequestParser()
+    #                  .add_argument(name="name", type=str, location="form", required=True)
+    #                  )
+    # def put(theme_id):
+    #     pass
+
+    # @staticmethod
+    # @api.doc(security='basicAuth')
+    # @user_api.doc(doc=False)
+    # @user_api.response(200, "Success", message_model)
+    # @user_api.response(401, "You must be logged in", message_model)
+    # @user_api.response(403, "You cannot delete this theme", message_model)
+    # @user_api.response(404, "Not found comment theme this ID", message_model)
+    # def delete(theme_id):
+    #     pass
 
 
 @user_api.route("/tag")
 class Tag(Resource):
     @staticmethod
+    @user_api.doc(description="Получить список тем")
     @user_api.response(200, "Success", tag_list_model)
     def get():
-        pass
+        tag_list = dbi.get_tag_list()  # TODO check get_theme_list
+        # TODO Форматировать
+        return make_response(tag_list, 200)
 
     @staticmethod
-    @api.doc(security='basicAuth')
+    @user_api.doc(description="Создать новый тег")
+    @requires_auth
     @user_api.response(200, "Success", tag_model)
-    @user_api.response(401, "You must be logged in", message_model)
-    @user_api.response(403, "You cannot create tag", message_model)
     @user_api.expect(RequestParser()
                      .add_argument(name="name", type=str, location="form", required=True)
                      )
     def post():
-        pass
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        f = request.form
+        if "name" not in f:
+            return make_response({"message": "Invalid request"}, 400)
+        tag_name = f["name"]
+
+        dbi.create_tag(tag_name)  # TODO check create_tag
+        return make_response({"message": "Success"}, 200)  # TODO Возвращать мб id?
 
 
 @user_api.route("/tag/<int:tag_id>")
@@ -782,7 +801,6 @@ class TagID(Resource):
     @user_api.response(200, "Success", tag_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot create theme", message_model)
-    @user_api.response(404, "Not found comment tag this ID", message_model)
     @user_api.expect(RequestParser()
                      .add_argument(name="name", type=str, location="form", required=True)
                      )
@@ -794,7 +812,6 @@ class TagID(Resource):
     @user_api.response(200, "Success", message_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You cannot delete this theme", message_model)
-    @user_api.response(404, "Not found comment tag this ID", message_model)
     def delete(tag_id):
         pass
 
