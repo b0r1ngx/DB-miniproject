@@ -162,8 +162,7 @@ def change_user(user_id: int, full_name: str = None, email: str = None, password
 
 
 def get_albums_by_user_id(owner_id, viewer_id):
-    """
-    Получить все альбомы owner'а, которые доступны viewer'у
+    """Получить все альбомы owner'а, которые доступны viewer'у
     :param owner_id:
     :param viewer_id:
     :return: {
