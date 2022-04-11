@@ -3,7 +3,7 @@ from database.tables.users import users
 from database.dbi import *
 
 
-def test():
+def insert_into_users():
     print("add user to users")
     with Session() as s:
         # s.add(users(full_name="Kirill Ivanov", email="perkeboring@gmail.com", password="perkeboring", is_admin=True))
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # print(dbi.login('perkeboring@gmail.com', 'lol'))
     # print(dbi.login('perkeboring@gmail.com', 'perkeboring'))
     # print(email_exists('perkeboring@gmail.com'))
-    # print(registration('privet poka', 'privet@poka.ru', 'lol'))
+    print(registration('privet poka', 'privet@poka.ru', 'lol'))
     # test_query()
     # print(is_admin(1))
     print(change_user(2, full_name="IAT", email="some@mail.com", password="zxc"))

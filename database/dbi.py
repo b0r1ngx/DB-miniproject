@@ -1,8 +1,10 @@
 from database.db_session import Session
 from database.tables.users import users
+from database.tables.photos import photos
+from database.tables.albums import albums
 from sqlalchemy import insert
-from sqlalchemy.exc import *
 from psycopg2.errors import *
+from sqlalchemy.exc import *
 import re
 
 
@@ -60,12 +62,15 @@ def registration(full_name, email, password) -> bool:
     try:
         s.add(users(full_name, email, password))
         s.commit()
-    except:
+    except DatabaseError:
         return False
     finally:
         s.close()
     return True
 
+
+def get_photos_by_user_id(owner_id: int, viewer_id: int) -> list[photos]:
+    pass
 
 def do_user_have_access_to_other_user_photos(owner_id: int, viewer_id: int) -> dict:
     """What photos can viewer see at owner (someone)
@@ -117,7 +122,7 @@ def is_admin(user_id: int) -> bool:
 
 def delete_user(user_id):
     """
-    Удалить пользователя (все его фото, альбомы и записи о них)
+    Удалить пользователя (все его фото, комментарии под фото, альбомы и записи о них)
     :param user_id:
     :return:
     """
@@ -148,14 +153,20 @@ def change_user(user_id: int, full_name: str = None, email: str = None, password
     return True
 
 
-def get_albums_by_user_id(owner_id, viewer_id):
+def get_albums_by_user_id(owner_id: int, viewer_id: int) -> list[albums]:
     """Получить все альбомы owner'а, которые доступны viewer'у
     :param owner_id:
     :param viewer_id:
     :return: {
                 "list" : [{
-                        "id": Int
-                        "name": String
+                        "id": Int,
+                        "name": String,
+                        ...
                        }]
-            }
+            } or maybe just:
+                [{
+                    "id": Int,
+                    "name": String,
+                    ...
+                }]
     """
