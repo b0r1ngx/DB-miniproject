@@ -144,12 +144,12 @@ def check_photo_exist(photo_id):
 
 
 def check_theme_exist(theme_id):
-    if not dbi.check_theme_exist(theme_id):  # TODO check check_photo_exist
+    if not dbi.is_theme_exist(theme_id):  # TODO check check_photo_exist
         return make_response({"message": "Not found theme with this ID"}, 404)
 
 
 def check_tag_exist(tag_id):
-    if not dbi.check_tag_exist(tag_id):  # TODO check check_photo_exist
+    if not dbi.is_tag_exist(tag_id):  # TODO check check_photo_exist
         return make_response({"message": "Not found tag with this ID"}, 404)
 
 

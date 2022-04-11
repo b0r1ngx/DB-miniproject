@@ -400,7 +400,7 @@ def get_theme_list():
     pass
 
 
-def check_theme_exist(theme_id):
+def is_theme_exist(theme_id):
     """
     Существует ли тема с таким id
     get
@@ -410,7 +410,7 @@ def check_theme_exist(theme_id):
     pass
 
 
-def check_tag_exist(tag_id):
+def is_tag_exist(tag_id):
     """
     Существует ли тема с таким id
     get
