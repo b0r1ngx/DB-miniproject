@@ -11,6 +11,8 @@ def select_all_from(table) -> list:
     with Session() as s:
         user_list = s.query(table).all()
     return user_list
+
+
 # def insert_into_users(full_name, email, password, is_admin=False):
 #     with Session() as s:
 #         # "INSERT INTO users VALUES ({full_name}, {email}, {password}, {is_admin}, {created_at});
@@ -429,7 +431,34 @@ def is_tag_exist(tag_id):
 
 def create_theme(name):
     """
+    Вернуть id и название
+    :param name:
+    :return:
+    """
+    pass
 
+
+def get_photos_by_theme(theme_id, viewer_id):
+    """
+    Получить все фото, у которых есть тема theme_id
+    и которые доступны viewer_id
+    :param viewer_id:
+    :param theme_id:
+    :return:
+    """
+
+
+def get_tag_list():
+    """
+    Получить список существующих тегов
+    :return:
+    """
+    pass
+
+
+def create_tag(name):
+    """
+    Вернуть id и название
     :param name:
     :return:
     """
