@@ -65,12 +65,13 @@ def registration(full_name, email, password) -> bool:
         s.add(users(full_name=full_name, email=email, password=password))
         s.commit()
     except BaseException as e:
-        e = type(e)
-        print(e)
-        if e is type(UniqueViolation) or e is type(IntegrityError):
-            return False
-        else:
-            raise Exception("Something goes wrong at dbi.registration()")
+        return False
+        # e = type(e)
+        # print(e)
+        # if e is type(UniqueViolation) or e is type(IntegrityError):
+        #     return False
+        # else:
+        #     raise Exception("Something goes wrong at dbi.registration()")
     finally:
         s.close()
     return True
