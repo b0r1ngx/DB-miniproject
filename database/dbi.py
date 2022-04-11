@@ -132,27 +132,14 @@ def change_user(user_id: int, full_name: str = None, email: str = None, password
     :param password:
     :return:
     """
-    if full_name and email and password:
-        set = f'''SET full_name = '{full_name}',
-                      email = '{email}',
-                      password = '{password}\''''
-    elif full_name and email:
-        set = f'''SET full_name = '{full_name}',
-                      email = '{email}\''''
-    elif full_name and password:
-        set = f'''SET full_name = '{full_name}',
-                      password = '{password}\''''
-    elif email and password:
-        set = f'''SET email = '{email}',
-                      password = '{password}\''''
-    elif full_name:
-        set = f'SET full_name = \'{full_name}\''
-    elif email:
-        set = f'SET email = \'{email}\''
-    elif password:
-        set = f'SET password = \'{password}\''
-    else:
-        return False
+    set = []
+    if full_name:
+        set.append(f"full_name = '{full_name}'")
+    if password:
+        set.append(f"password = '{password}'")
+    if email:
+        set.append(f"email = '{email}'")
+    set = "SET " + ",\n".join(set)
 
     with Session() as s:
         stmt = f'UPDATE users {set} WHERE id = {user_id}'

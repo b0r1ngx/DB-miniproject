@@ -20,11 +20,12 @@ def test_query():
 
 if __name__ == "__main__":
     init_database_session()
-    test_query()
+
     # print(dbi.login('perkeboring@gmail.com', 'lol'))
     # print(dbi.login('perkeboring@gmail.com', 'perkeboring'))
     # print(email_exists('perkeboring@gmail.com'))
     # print(registration('privet poka', 'privet@poka.ru', 'lol'))
     # test_query()
     # print(is_admin(1))
-    # print(change_user(1, full_name="Kirill Ivanov Alekseevich"))
+    print(change_user(2, full_name="IAT", email="some@mail.com", password="zxc"))
+    test_query()
