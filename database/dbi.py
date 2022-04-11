@@ -284,9 +284,11 @@ def delete_album(album_id):
     pass
 
 
-def create_photo(user_id, url, description, album_list, tag_list, theme_list, is_private):
-    """
+def create_photo(user_id: int, url: str, description: str, album_list: list[int],
+                 tag_list: list[int], theme_list: list[int], is_private) -> dict:
+    """+
     Создать фото и установить необходимые доступы
+    :param url:
     :param user_id:
     :param description:
     :param album_list:
@@ -295,7 +297,12 @@ def create_photo(user_id, url, description, album_list, tag_list, theme_list, is
     :param is_private:
     :return:
     """
-    pass
+    with Session() as s:
+        s.add(photos(user_id=user_id, url=url, description=description, private=is_private))
+        s.add(photo_themes())
+        s.commit()
+
+
 
 
 def albums_exist(album_list):

@@ -14,12 +14,13 @@ class photos(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     url = Column(String)
-    width = Column(Integer)
-    height = Column(Integer)
-    place = Column(String)  # I think there may be coordinates "63, 58", and later our service dedicate a place by coords
     description = Column(String)
     private = Column(Boolean, default=False)
     created_at = Column(DateTime, default=dt.now())
+    # width = Column(Integer)
+    # height = Column(Integer)
+    # I think there may be place or coordinates "63, 58" (from photo), later service can dedicate a place by coords
+    # place = Column(String)
 
     # Relations
     comments = orm.relation("comments", backref="photos")
