@@ -160,8 +160,6 @@ def change_user(user_id: int, full_name: str = None, email: str = None, password
         s.commit()
     return True
 
-## Альбомы
-
 
 def get_albums_by_user_id(owner_id: int, viewer_id: int) -> list[albums]:
     """Получить все альбомы owner'а, которые доступны viewer'у
@@ -246,3 +244,42 @@ def delete_album(album_id):
     pass
 
 
+def create_photo(user_id, description, album_list, tag_list, theme_list, is_private):
+    """
+    Создать фото и установить необходимые доступы
+    :param user_id:
+    :param description:
+    :param album_list:
+    :param tag_list:
+    :param theme_list:
+    :param is_private:
+    :return:
+    """
+    pass
+
+
+def albums_exist(album_list):
+    """
+    Проверить все ли альбомы из списка существуют
+    :param album_list:
+    :return:
+    """
+    pass
+
+
+def tags_exist(album_list):
+    """
+    Проверить все ли теги из списка существуют
+    :param album_list:
+    :return:
+    """
+    pass
+
+
+def themes_exist(album_list):
+    """
+    Проверить все ли темы из списка существуют
+    :param album_list:
+    :return:
+    """
+    pass

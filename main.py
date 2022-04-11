@@ -1,5 +1,8 @@
 # Local
+import os
 from functools import wraps
+
+from werkzeug.utils import secure_filename
 
 from database.db_session import init_database_session
 from database import dbi
@@ -8,26 +11,46 @@ from database import dbi
 import base64
 
 # lib
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, url_for
 from werkzeug.datastructures import FileStorage
 from flask_restx.reqparse import RequestParser
 from flask_restx import Api, fields, Resource
 from flask_cors import CORS
+from flask import send_from_directory
 from helpers import email_is_valid
 
 app = Flask(__name__)
 app.secret_key = "secretKey"
 
+UPLOAD_FOLDER = './uploadsPhoto'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# app.add_url_rule('/uploads/<filename>', 'uploaded_file',
+#                  build_only=True)
+# app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
+#     '/uploads':  app.config['UPLOAD_FOLDER']
+# })
+# app.add_url_rule(
+#     "/uploads/<name>", endpoint="download_file"
+#     # , build_only=True
+# )
 CORS(app)
-authorizations = {
-    'basicAuth': {
-        'type': 'basic'
-    }
-}
+
+# authorizations = {
+#     'basicAuth': {
+#         'type': 'basic'
+#     }
+# }
 
 api = Api(
     app,
-    authorizations=authorizations,
+    authorizations={
+        'basicAuth': {
+            'type': 'basic'
+        }
+    },
     version="0.1",
     title="Photo Service API",
     default="Photo Service",
@@ -86,14 +109,12 @@ tag_model = api.model("tag", {
 tag_list_model = api.model("tag_list", {
     "list": fields.List(fields.Nested(tag_model))
 })
-
 comment_model = api.model("comment", {
     "id": fields.Integer,
     "user": fields.Nested(user_info_model),
     "photo_id": fields.Integer,
     "text": fields.String
 })
-
 photo_model = api.model("photo", {
     "id": fields.Integer,
     "url": fields.Url,
@@ -130,6 +151,11 @@ def check_album_exist(user_id, album_id):
     # TODO check check_user_exist
     if not dbi.check_album_exist(user_id, album_id):
         return make_response({"message": "Not found album with this ID"}, 404)
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 @user_api.route("/login")
@@ -410,23 +436,74 @@ class Search(Resource):
 @user_api.route("/photo")
 class Photo(Resource):
     @staticmethod
-    @api.doc(security='basicAuth')
+    @user_api.doc(description="Загрузить фото")
+    @requires_auth
     @user_api.response(200, "Success", photo_model)
     @user_api.response(400, "Invalid request", message_model)
-    @user_api.response(401, "You must be logged in", message_model)
     @user_api.expect(RequestParser()
                      .add_argument(name="file", type=FileStorage, location="files")
                      .add_argument(name="description", type=str, location="form")
-                     .add_argument(name="albums", type=int, location="form", action="append")
-                     .add_argument(name="tags", type=int, location="form", action="append")
-                     .add_argument(name="themes", type=int, location="form", action="append")
-                     .add_argument(name="private or no", type=bool, location="form")
+                     .add_argument(name="album", type=int, location="form", action="append")
+                     .add_argument(name="tag", type=int, location="form", action="append")
+                     .add_argument(name="theme", type=int, location="form", action="append")
+                     .add_argument(name="private", type=bool, location="form")
                      )
     def post():
-        request.files.get("file").save()
-        print(type(request.files.get("file")))
-        pass
-        return "123"
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
+
+        f = request.form
+        description = None if "description" not in f else f["description"]
+        album_list = None if "album" not in f else f.getlist("album")
+        tag_list = None if "tag" not in f else f.getlist("tag")
+        theme_list = None if "theme" not in f else f.getlist("album")
+        is_private = False if "private" not in f else len(f.get("private")) <= 4
+
+        if "file" not in request.files:
+            return make_response({"message": "Invalid request"}, 400)
+        file = request.files["file"]
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            while os.path.exists(path):
+                filename = str(viewer_id) + filename
+                path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(path)
+
+            new_url = api.url_for(UploadedFile, filename=filename)
+            print(new_url)
+        else:
+            return make_response({"message": "Invalid request"}, 400)
+
+        if is_private and (not (album_list or tag_list or theme_list)):
+            return make_response({"message": "Invalid request"}, 400)
+        if not is_private and (album_list or tag_list or theme_list):
+            return make_response({"message": "Invalid request"}, 400)
+
+        is_tags_exist = True if not tag_list else dbi.tags_exist(tag_list)
+        is_albums_exist = True if not album_list else dbi.albums_exist(album_list)
+        is_themes_exist = True if not theme_list else dbi.themes_exist(theme_list)
+
+        if not (is_tags_exist and is_albums_exist and is_themes_exist):
+            return make_response({"message": "Invalid request"}, 400)
+
+        photo = dbi.create_photo(viewer_id,
+                                 description=description,
+                                 album_list=album_list,
+                                 tag_list=tag_list,
+                                 theme_list=theme_list,
+                                 is_private=is_private)
+        # TODO Преобразовать к формату
+        return make_response(photo, 200)
+
+
+@api.route("/uploads/<filename>", doc=False)
+class UploadedFile(Resource):
+    @staticmethod
+    def get(filename):
+        print(filename)
+        return send_from_directory(app.config['UPLOAD_FOLDER'],
+                                   filename)
 
 
 @user_api.route("/photo/<int:photo_id>")

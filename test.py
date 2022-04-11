@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # print(dbi.login('perkeboring@gmail.com', 'lol'))
     # print(dbi.login('perkeboring@gmail.com', 'perkeboring'))
     # print(email_exists('perkeboring@gmail.com'))
-    print(registration('Ivan Ivanov', 'ivan@gmail.com', 'mypassword'))
+    # print(registration('Ivan Ivanov', 'ivan@gmail.com', 'mypassword'))
     # test_query()
     # print(is_admin(1))
     # print(change_user(2, full_name="IAT", email="some@mail.com", password="zxc"))
