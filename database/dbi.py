@@ -109,19 +109,19 @@ def is_admin(user_id: int) -> bool:
     """
     with Session() as s:
         stmt = f'''SELECT is_admin FROM users
-                   WHERE id = {user_id}'''
+                   WHERE users.id = {user_id}'''
         is_admin = s.execute(stmt)
     for i in is_admin:
         return i[0]
 
 
-def delete_user(user_id: int):
+def delete_user(user_id):
     """
     Удалить пользователя (все его фото, альбомы и записи о них)
     :param user_id:
     :return:
     """
-    # with Session() as s:
+    pass
 
 
 def change_user(user_id: int, full_name: str = None, email: str = None, password: str = None) -> bool:
@@ -160,3 +160,16 @@ def change_user(user_id: int, full_name: str = None, email: str = None, password
         s.commit()
     return True
 
+
+def get_albums_by_user_id(owner_id, viewer_id):
+    """
+    Получить все альбомы owner'а, которые доступны viewer'у
+    :param owner_id:
+    :param viewer_id:
+    :return: {
+                "list" : [{
+                        "id": Int
+                        "name": String
+                       }]
+            }
+    """

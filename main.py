@@ -185,7 +185,7 @@ class User(Resource):
         auth = request.authorization
         current_user_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
 
-        is_user_exist = dbi.check_user_exist(user_id)
+        is_user_exist = dbi.check_user_exist(user_id) # TODO check check_user_exist
         if not is_user_exist:
             return make_response({"message": "Not found user with this ID"}, 404)
 
@@ -199,7 +199,7 @@ class User(Resource):
         #     "date": fields.DateTime,
         #     "photos": fields.List(fields.Nested(photo_preview_model))  #
         # }
-        pass  # TODO Преобразовать user к dict правильной формы
+        # TODO Преобразовать user к dict правильной формы
         return make_response(user, 200)
 
     @staticmethod
@@ -228,7 +228,9 @@ class User(Resource):
     @api.doc(security='basicAuth')
     @requires_auth
     @user_api.expect(RequestParser()
-                     .add_argument(name="full_name", type=str, location="form", required=True)
+                     .add_argument(name="full_name", type=str, location="form")
+                     .add_argument(name="email", type=str, location="form")
+                     .add_argument(name="password", type=str, location="form")
                      )
     @user_api.response(200, "Success", user_model)
     @user_api.response(400, "Invalid request", message_model)
@@ -237,9 +239,11 @@ class User(Resource):
     @user_api.response(404, "No user found with this id", message_model)
     def put(user_id):
         f = request.form
-        if "full_name" not in f:
+        if not ("full_name" in f or "email" in f or "password" in f):
             return make_response({"message": "Invalid request"}, 400)
-        new_full_name = f["full_name"]
+        new_full_name = None if "full_name" not in f else f["full_name"]
+        new_email = None if "email" not in f else f["email"]
+        new_password = None if "password" not in f else f["password"]
 
         viewer_id = dbi.get_user_id(request.authorization.username)
         viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
@@ -249,7 +253,11 @@ class User(Resource):
             return make_response({"message": "Not found user with this ID"}, 404)
 
         if viewer_id == user_id or viewer_is_admin:
-            dbi.change_user(user_id, new_full_name)  # TODO check change_user
+            dbi.change_user(user_id,
+                            full_name=new_full_name,
+                            password=new_password,
+                            email=new_email
+                            )  # TODO check change_user
             return make_response({"message": "Success"}, 200)
 
         return make_response({"message": "You cannot delete users"}, 403)
@@ -259,9 +267,17 @@ class User(Resource):
 class UserAlbum(Resource):
     @staticmethod
     @user_api.response(200, "Success", album_list_model)
-    @user_api.response(404, "Album with this id not found", message_model)
+    @user_api.response(404, "User with this id not found", message_model)
     def get(user_id):
-        pass
+        auth = request.authorization
+        current_user_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+
+        is_user_exist = dbi.check_user_exist(user_id)  # TODO check check_user_exist
+        if not is_user_exist:
+            return make_response({"message": "Not found user with this ID"}, 404)
+
+        album_list = dbi.get_albums_by_user_id(user_id) # TODO chek get_albums_by_user_id
+        return
 
     @staticmethod
     @api.doc(security='basicAuth')
