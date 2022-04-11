@@ -182,7 +182,7 @@ def get_albums_by_user_id(owner_id: int, viewer_id: int) -> list[albums]:
 
 def is_album_name_not_exists(user_id: int, name: str) -> bool:
     with Session() as s:
-        stmt = f'''SELECT name FROM albums
+        stmt = f'''SELECT * FROM albums
                    WHERE user_id = {user_id} 
                    AND name = '{name}\''''
         exists = s.execute(stmt)
@@ -209,7 +209,7 @@ def create_album(user_id: int, name: str, description: str) -> bool:
     return True
 
 
-def check_album_exist(user_id, album_id) -> bool:
+def check_album_exist(user_id: int, album_id: int) -> bool:
     """
     Проверить существует ли альбом
     с указанным album_id принадлежащий пользователю
@@ -218,19 +218,34 @@ def check_album_exist(user_id, album_id) -> bool:
     :param album_id:
     :return:
     """
-    pass
+    with Session() as s:
+        stmt = f'''SELECT * FROM albums
+                   WHERE id = {album_id}
+                   AND user_id = {user_id}'''
+        album_exists = s.execute(stmt)
+    for i in album_exists:
+        if i[0]:
+            return True
+    return False
 
 
-def get_album_access(user_id, album_id) -> bool:
+def get_album_access(user_id: int, album_id: int) -> bool:
     """
-    Имеет ли пользователь с указанным
-    user_id доступ к альбому с указанным
-    album_id
+    Имеет ли пользователь с указанным user_id
+    доступ к альбому с указанным album_id
     :param user_id:
     :param album_id:
     :return:
     """
-    pass
+    with Session() as s:
+        stmt = f'''SELECT * FROM album_access
+                   WHERE album_id = {album_id}
+                   AND user_id = {user_id}'''
+        album_exists = s.execute(stmt)
+    for i in album_exists:
+        if i[0]:
+            return True
+    return False
 
 
 def get_album(album_id):

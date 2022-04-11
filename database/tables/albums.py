@@ -18,3 +18,9 @@ class albums(Base):
     # Relations
     album_photos = orm.relation("album_photos", backref="albums")
     album_access = orm.relation("album_access", backref="albums")
+
+    def __str__(self):
+        return f"<Album ({self.id}) by user_id {self.user_id} with name: {self.name} >"
+
+    def __repr__(self):
+        return self.__str__()
