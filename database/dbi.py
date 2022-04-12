@@ -19,10 +19,10 @@ from sqlalchemy.exc import *
 
 def select_all_from(table) -> list:
     with Session() as s:
-        user_list = s.query(table).all()
+        table_list = s.query(table).all()
     # with session as s:
     #     user_list = s.query(table).all()
-    return user_list
+    return table_list
 
 
 # def insert_into_users(full_name, email, password, is_admin=False):
@@ -423,8 +423,7 @@ def get_photo(photo_id: int, viewer_id: int):
     """
     with Session() as s:
         stmt = f'''SELECT * FROM photos
-                   LEFT JOIN photo_access pa USING ()
-                   '''
+                   LEFT JOIN photo_access pa USING ()'''
 
 
 def is_photo_exist(photo_id):
@@ -466,8 +465,6 @@ def get_user_id_by_photo_id(photo_id):
         photo = s.query(photos).filter(photos.id == photo_id).one()
         user_id = photo.user_id
         return user_id
-
-
 
 
 def get_access_to_photo_by_user_id(photo_id, viewer_id):
@@ -519,32 +516,46 @@ def add_comment(commentator_id, photo_id, text):
         }
 
 
-def get_theme_list():
+def get_theme_list() -> list[themes]:
     """
     Получить список существующих тем
     :return:
     """
-    pass
+    return select_all_from(themes)
 
 
-def is_theme_exist(theme_id):
+def is_theme_exist(theme_id: int) -> bool:
     """
     Существует ли тема с таким id
     get
     :param theme_id:
     :return:
     """
-    pass
+    with Session() as s:
+        stmt = f'''SELECT * FROM themes
+                   WHERE id = {theme_id}'''
+        theme_exist = s.execute(stmt)
+    for i in theme_exist:
+        if i[0]:
+            return True
+    return False
 
 
-def is_tag_exist(tag_id):
+def is_tag_exist(tag_id: int) -> bool:
     """
     Существует ли тема с таким id
     get
-    :param theme_id:
+    :param tag_id:
     :return:
     """
-    pass
+    with Session() as s:
+        stmt = f'''SELECT * FROM tags
+                    WHERE id = {tag_id}'''
+        tag_exist = s.execute(stmt)
+    for i in tag_exist:
+        if i[0]:
+            return True
+    return False
 
 
 def create_theme(name):
