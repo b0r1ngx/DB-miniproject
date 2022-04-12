@@ -46,6 +46,7 @@ if __name__ == "__main__":
         for row in my_list:
             print(row)
         input("press Enter")
+
     # add_user_to_photo_access(7, 8)
     # my_list = select_all_from(photo_access)
     # for row in my_list:

@@ -290,12 +290,24 @@ def change_album(album_id, name=None, description=None):
     :param description:
     :return:
     """
-    pass
+    set = []
+    if name:
+        set.append(f"name = '{name}'")
+    if description:
+        set.append(f"description = '{description}'")
+    set = "SET " + ",\n".join(set)
+
+    with Session() as s:
+        stmt = f'UPDATE albums {set} WHERE id = {album_id}'
+        s.execute(stmt)
+        s.commit()
+    return True
 
 
 def delete_album(album_id):
     """
     Удалить альбом (что с фото?)
+    Удалить альбом + все записи о нем в других таблицах (с ним в album_access)
     :param album_id:
     :return:
     """
