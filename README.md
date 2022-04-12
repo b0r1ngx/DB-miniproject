@@ -99,9 +99,6 @@ CREATE TABLE photos (
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     url TEXT NOT NULL,
-    width INTEGER NOT NULL,
-    height INTEGER NOT NULL,
-    place TEXT NOT NULL,
     description TEXT,
     private BOOLEAN NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -165,6 +162,13 @@ CREATE TABLE album_access (
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+```
+
+В связи с ограничением по времени, убрали из таблицы photos, 3 данных,
+```sql
+width INTEGER NOT NULL,
+height INTEGER NOT NULL,
+place TEXT NOT NULL
 ```
 ### Наполнение БД данными
 
