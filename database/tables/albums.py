@@ -10,7 +10,7 @@ class albums(Base):
 
     # Table columns
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     name = Column(String)
     description = Column(String)
     created_at = Column(DateTime, default=dt.now())

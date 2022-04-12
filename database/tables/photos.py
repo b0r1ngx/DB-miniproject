@@ -12,7 +12,7 @@ class photos(Base):
 
     # Table columns
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     url = Column(String)
     description = Column(String)
     private = Column(Boolean, default=False)
