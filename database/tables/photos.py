@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey,orm
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, orm
 from database.db_session import Base
 from datetime import datetime as dt
 from database.tables.comments import comments
@@ -28,3 +28,9 @@ class photos(Base):
     photo_themes = orm.relation("photo_themes", backref="photos")
     album_photos = orm.relation("album_photos", backref="photos")
     photo_access = orm.relation("photo_access", backref="photos")
+
+    def __str__(self):
+        return f"Photo:\t<id: {self.id},\tuser_id:{self.user_id},\turl: {self.url}>"
+
+    def __repr__(self):
+        return self.__str__()

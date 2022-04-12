@@ -151,6 +151,31 @@ def delete_user(user_id):
     """
     pass
 
+def delete_album(album_id):
+    """
+
+    :param album_id:
+    :return:
+    """
+    pass
+
+def delete_photo(photo_id):
+    """
+
+    :param photo_id:
+    :return:
+    """
+    pass
+
+
+def delete_comment(comment_id):
+    """
+
+    :param comment_id:
+    :return:
+    """
+    pass
+
 
 def change_user(user_id: int, full_name: str = None, email: str = None, password: str = None) -> bool:
     """ +
@@ -313,11 +338,17 @@ def delete_album(album_id):
     """
     pass
 
+def delete_tag(tag_id):
+    pass
+
+def delete_theme(theme_id):
+    pass
+
 
 def create_photo(user_id: int, url: str, description: str, album_list: list[int],
                  tag_list: list[int], theme_list: list[int], is_private) -> dict:
     """+
-    Создать фото и установить необходимые доступы
+    Создать фото и установить необходимые связи
     :param url:
     :param user_id:
     :param description:
@@ -669,7 +700,7 @@ def add_user_to_photo_access(photo_id, accesser_id):
 
 def delete_user_to_photo_access(photo_id, accesser_id):
     """+
-    Удалить пользователя если был
+    Удалить пользователя из списка если был
     :param photo_id:
     :param accesser_id:
     :return: True - success
@@ -715,7 +746,6 @@ def check_photo_list_owner(user_id, photo_list):
             .filter(photos.id.in_(photo_list))
         rows = query.filter(photos.user_id == user_id)
         if len(query.all()) == len(rows.all()):
-            # print("123")
             return True
         return False
 
@@ -744,3 +774,64 @@ def add_many_photos_to_album(photo_id_list, album_id):
     for photo_id in photo_id_list:
         add_photo_to_album(photo_id, album_id)
     return True
+
+
+def get_users_photos(owner_id, viewer_id):
+    """
+    Получить все досупные фото
+    :param owner_id:
+    :param viewer_id:
+    :return:
+    """
+    with Session() as s:
+        viewer_is_owner = viewer_id == owner_id
+        viewer = s.query(users).filter(users.id == viewer_id).all()
+        viewer_is_admin = False if len(viewer) == 0 else viewer[0].is_admin
+        # viewer_is_admin = s.query(users).filter(users.id == viewer_id).one().is_admin
+
+        if viewer_is_owner or viewer_is_admin:
+            private_list = s.query(photos).filter(
+                photos.user_id == owner_id
+            ).all()
+            result = []
+            for row in private_list:
+                result.append({
+                    "id": row.id,
+                    "url": row.url
+                })
+            return result
+        public = s.query(photos).filter(
+            photos.private == False,
+            photos.user_id == owner_id
+        )
+        private = s.query(photos).filter(
+            photos.private == True,
+            photos.user_id == owner_id
+        )
+        user_access = s.query(photo_access).filter(
+            photo_access.user_id == viewer_id
+        )
+
+        private_with_acc = private.join(user_access)
+        # print(private_with_acc)
+        private_list = private_with_acc.all()
+        result = []
+        for row in private_list:
+            result.append({
+                "id": row.id,
+                "url": row.url
+            })
+        for row in public.all():
+            result.append({
+                "id": row.id,
+                "url": row.url
+            })
+        return result
+
+
+def get_user_info(user_id):
+    with Session() as s:
+        user = s.query(users).filter(users.id == user_id).all()
+        if user:
+            return user[0]
+        return None
