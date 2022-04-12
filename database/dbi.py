@@ -471,7 +471,7 @@ def get_user_id_by_photo_id(photo_id):
 
 
 def get_access_to_photo_by_user_id(photo_id, viewer_id):
-    """
+    """+
     Имеет ли пользователь с viewer_id досуп
     к фото с photo_id&
     :param photo_id:
@@ -483,11 +483,13 @@ def get_access_to_photo_by_user_id(photo_id, viewer_id):
         photo_is_private = photo.private
         if not photo_is_private:
             return True
-
-        some = s.query(photo_access).filter(photo_access.photo_id == photo_id)
-        some = some.join(photo_access.user_id == viewer_id).all()
-        #  TODO realize add access and resume
-        print(some)
+        if viewer_id in get_photo_access_list(photo_id):
+            return True
+        if viewer_id == get_user_id_by_photo_id(photo_id):
+            return True
+        return False
+        # #  TODO realize add access and resume
+        # print(some)
 
         # public_images = s.query(photos).filter(photos.private == False).all()
         # some1
@@ -497,12 +499,24 @@ def get_access_to_photo_by_user_id(photo_id, viewer_id):
 
 
 def add_comment(commentator_id, photo_id, text):
-    """
+    """+
     Добавить новый комментарий к фото
     :param commentator_id:
     :param photo_id:
     :return:
     """
+    with Session() as s:
+        new_comment = comments(text=text,
+                               user_id=commentator_id,
+                               photo_id=photo_id)
+        s.add(new_comment)
+        s.commit()
+        return {
+            "id": new_comment.id,
+            "user": new_comment.user_id,
+            "photo_id": new_comment.photo_id,
+            "text": new_comment.text
+        }
 
 
 def get_theme_list():

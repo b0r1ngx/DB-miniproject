@@ -637,7 +637,8 @@ class Comment(Resource):
                      .add_argument(name="text", type=str, location="form", required=True)
                      )
     def post(photo_id):
-        check_photo_exist(photo_id)
+        if not check_photo_exist(photo_id):
+            return make_response({"message": "Not found photo with this ID"}, 404)
 
         viewer_id = dbi.get_user_id(request.authorization.username)
         viewer_is_admin = dbi.is_admin(viewer_id)
@@ -651,8 +652,8 @@ class Comment(Resource):
         # TODO check get_access_to_photo_by_user_id
 
         if is_access or viewer_is_admin:
-            dbi.add_comment(viewer_id, photo_id, text)  # TODO check add_comment
-            return make_response({"message": "Success"}, 200)
+            comment = dbi.add_comment(viewer_id, photo_id, text)  # TODO check add_comment
+            return make_response(comment, 200)
         return make_response({"message": "You do not have access to this photo"}, 403)
 
 

@@ -36,10 +36,15 @@ if __name__ == "__main__":
     # print(albums_exist([1]))
 
     while True:
+        my_list = select_all_from(users)
+        for row in my_list:
+            print(row)
         my_list = select_all_from(photo_access)
         for row in my_list:
             print(row)
-        delete_user_to_photo_access(7, None)
+        my_list = select_all_from(comments)
+        for row in my_list:
+            print(row)
         input("press Enter")
     # add_user_to_photo_access(7, 8)
     # my_list = select_all_from(photo_access)
