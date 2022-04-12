@@ -165,7 +165,6 @@ CREATE TABLE album_access (
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
 ```
 ### Наполнение БД данными
 
