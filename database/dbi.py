@@ -428,21 +428,32 @@ def get_photo(photo_id: int, viewer_id: int):
 
 
 def is_photo_exist(photo_id):
-    """
+    """+
     Существует ли фото с указанным id
     :param photo_id:
     :return:
     """
-    pass
+    with Session() as s:
+        rows = s.query(photos).filter(photos.id == photo_id).all()
+        if len(rows) > 0:
+            return True
+        return False
 
 
 def get_photo_access_list(photo_id):
-    """
+    """+
     Получить список пользователей, которым доступно фото
     :param photo_id:
     :param viewer_id:
     :return:
     """
+    with Session() as s:
+        rows = s.query(photo_access).filter(photo_access.photo_id == photo_id).all()
+        result_list = []
+        for row in rows:
+            result_list.append(row.user_id)
+        return result_list
+    pass
 
 
 def get_user_id_by_photo_id(photo_id):
@@ -457,14 +468,6 @@ def get_user_id_by_photo_id(photo_id):
         return user_id
 
 
-def set_photo_access_list(photo_id, user_id_list):
-    """
-    Установить доступ к фото пользователям
-    из user_id_list
-    :param photo_id:
-    :param user_id_list:
-    :return:
-    """
 
 
 def get_access_to_photo_by_user_id(photo_id, viewer_id):
@@ -601,7 +604,7 @@ def create_tag(name):
 
 
 def add_user_to_photo_access(photo_id, accesser_id):
-    """
+    """+
     добавить пользователя в список доступа и вернуть ид новой записи
     если уже там, то не добавлять, а вернуть ид старой записи
     :param photo_id:
@@ -609,16 +612,37 @@ def add_user_to_photo_access(photo_id, accesser_id):
     :return:
     """
     with Session() as s:
-        # photo = s.query(photos).filter(photos.id == photo_id).one()
-        # some = s.query(photo.photo_access).filter()
+        rows = s.query(photo_access).filter(
+            photo_access.photo_id == photo_id,
+            photo_access.user_id == accesser_id
+        ).all()
 
-        some2 = s.query(photo_access)\
-            .filter(photo_access.photo_id == photo_id, photo_access.user_id == accesser_id).all()
-        if len(some2) == 0:
-            new_photo_access = photo_access(photo_id=photo_id)
+        if len(rows) == 0:
+            new_photo_access = photo_access(
+                photo_id=photo_id,
+                user_id=accesser_id
+            )
             s.add(new_photo_access)
             s.commit()
             new_photo_access_id = new_photo_access.id
             return new_photo_access_id
 
-        return some2[0].id
+        return rows[0].id
+
+
+def delete_user_to_photo_access(photo_id, accesser_id):
+    """+
+    Удалить пользователя если был
+    :param photo_id:
+    :param accesser_id:
+    :return: True - success
+    """
+    with Session() as s:
+        rows = s.query(photo_access).filter(
+            photo_access.user_id == accesser_id,
+            photo_access.photo_id == photo_id
+        ).all()
+        if len(rows) > 0:
+            s.delete(rows[0])
+        s.commit()
+        return True
