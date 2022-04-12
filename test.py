@@ -35,21 +35,29 @@ if __name__ == "__main__":
     # print(get_tag_list())
     # print(albums_exist([1]))
 
-    user_list = select_all_from(users)
-    for row in user_list:
-        print(row)
-    while True:
-        # my_list = select_all_from(photo_themes)
-        # for row in my_list:
-        #     print(row)
-        # my_list = select_all_from(photo_tags)
-        # for row in my_list:
-        #     print(row)
-        # my_list = select_all_from(album_photos)
-        # for row in my_list:
-        #     print(row)
+    # user_list = select_all_from(users)
+    # for row in user_list:
+    #     print(row)
+    # while True:
+    #     # my_list = select_all_from(photo_themes)
+    #     # for row in my_list:
+    #     #     print(row)
+    #     # my_list = select_all_from(photo_tags)
+    #     # for row in my_list:
+    #     #     print(row)
+    #     # my_list = select_all_from(album_photos)
+    #     # for row in my_list:
+    #     #     print(row)
+    #
+    #     my_list = select_all_from(albums)
+    #     for row in my_list:
+    #         print(row)
+    #     input("press Enter")
 
-        my_list = select_all_from(albums)
-        for row in my_list:
-            print(row)
-        input("press Enter")
+    # get_access_to_photo_by_user_id(photo_id=6, viewer_id=1)
+
+    # print(get_user_id_by_photo_id(6))
+    # print(get_user_id_by_photo_id(7))
+    # print(get_user_id_by_photo_id(8))
+
+    print(add_user_to_photo_access(7, 8))

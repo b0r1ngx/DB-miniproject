@@ -9,6 +9,7 @@ from database.tables.photo_tags import photo_tags
 from database.tables.album_access import album_access
 from database.tables.album_photos import album_photos
 from database.tables.photo_themes import photo_themes
+from database.tables.photo_access import photo_access
 from database.tables.comments import comments
 
 from sqlalchemy import insert
@@ -445,12 +446,15 @@ def get_photo_access_list(photo_id):
 
 
 def get_user_id_by_photo_id(photo_id):
-    """
+    """+
     Получить id владельца фото
     :param photo_id:
     :return:
     """
-    pass
+    with Session() as s:
+        photo = s.query(photos).filter(photos.id == photo_id).one()
+        user_id = photo.user_id
+        return user_id
 
 
 def set_photo_access_list(photo_id, user_id_list):
@@ -471,6 +475,21 @@ def get_access_to_photo_by_user_id(photo_id, viewer_id):
     :param viewer_id:
     :return:
     """
+    with Session() as s:
+        photo = s.query(photos).filter(photos.id == photo_id).one()
+        photo_is_private = photo.private
+        if not photo_is_private:
+            return True
+
+        some = s.query(photo_access).filter(photo_access.photo_id == photo_id)
+        some = some.join(photo_access.user_id == viewer_id).all()
+        #  TODO realize add access and resume
+        print(some)
+
+        # public_images = s.query(photos).filter(photos.private == False).all()
+        # some1
+        # # some = some.join
+        # print(photo)
     pass
 
 
@@ -579,3 +598,27 @@ def create_tag(name):
     except IntegrityError:
         print("Такой тег уже существует")
     return None
+
+
+def add_user_to_photo_access(photo_id, accesser_id):
+    """
+    добавить пользователя в список доступа и вернуть ид новой записи
+    если уже там, то не добавлять, а вернуть ид старой записи
+    :param photo_id:
+    :param accesser_id:
+    :return:
+    """
+    with Session() as s:
+        # photo = s.query(photos).filter(photos.id == photo_id).one()
+        # some = s.query(photo.photo_access).filter()
+
+        some2 = s.query(photo_access)\
+            .filter(photo_access.photo_id == photo_id, photo_access.user_id == accesser_id).all()
+        if len(some2) == 0:
+            new_photo_access = photo_access(photo_id=photo_id)
+            s.add(new_photo_access)
+            s.commit()
+            new_photo_access_id = new_photo_access.id
+            return new_photo_access_id
+
+        return some2[0].id
