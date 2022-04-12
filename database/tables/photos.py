@@ -13,7 +13,7 @@ class photos(Base):
     # Table columns
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
-    url = Column(String)
+    url = Column(String, unique=True)
     description = Column(String)
     private = Column(Boolean, default=False)
     created_at = Column(DateTime, default=dt.now())

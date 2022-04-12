@@ -14,7 +14,7 @@ class comments(Base):
     created_at = Column(DateTime, default=dt.now())
 
     def __str__(self):
-        return f"Comment ({text}):<id: {self.id},\tphoto_id: {self.photo_id},\tuser_id: {self.user_id}>"
+        return f"Comment ({self.text}):<id: {self.id},\tphoto_id: {self.photo_id},\tuser_id: {self.user_id}>"
 
     def __repr__(self):
         return self.__str__()
