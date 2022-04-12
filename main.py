@@ -738,9 +738,13 @@ class Theme(Resource):
     @user_api.response(200, "Success", theme_list_model)
     def get():
         theme_list = dbi.get_theme_list()
-
-        # TODO Форматировать
-        return make_response(theme_list, 200)
+        result = []
+        for row in theme_list:
+            result.append({
+                "id": row.id,
+                "name": row.name
+            })
+        return make_response({"list": result}, 200)
 
     @staticmethod
     @user_api.doc(description="Создать новую тему")
@@ -814,9 +818,14 @@ class Tag(Resource):
     @user_api.doc(description="Получить список тем")
     @user_api.response(200, "Success", tag_list_model)
     def get():
-        tag_list = dbi.get_tag_list()  # TODO check get_theme_list
-        # TODO Форматировать
-        return make_response(tag_list, 200)
+        tag_list = dbi.get_tag_list()
+        result = []
+        for row in tag_list:
+            result.append({
+                "id": row.id,
+                "name": row.name
+            })
+        return make_response({"list": result}, 200)
 
     @staticmethod
     @user_api.doc(summary="asd", description="Создать новый тег")
