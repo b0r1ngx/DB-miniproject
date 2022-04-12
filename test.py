@@ -36,15 +36,12 @@ if __name__ == "__main__":
     # print(albums_exist([1]))
 
     while True:
-        my_list = select_all_from(users)
+        my_list = select_all_from(albums)
         for row in my_list:
             print(row)
-        my_list = select_all_from(photo_access)
-        for row in my_list:
-            print(row)
-        my_list = select_all_from(comments)
-        for row in my_list:
-            print(row)
+
+        check_album_list_owner(2, [1, 2, 4, 5])
+
         input("press Enter")
 
     # add_user_to_photo_access(7, 8)

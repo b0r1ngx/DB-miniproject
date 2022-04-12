@@ -479,8 +479,10 @@ class Photo(Resource):
         is_tags_exist = True if not tag_list else dbi.tags_exist(tag_list)
         is_albums_exist = True if not album_list else dbi.albums_exist(album_list)
         is_themes_exist = True if not theme_list else dbi.themes_exist(theme_list)
+
+        is_albums_correct = is_albums_exist and dbi.check_album_list_owner(viewer_id, album_list)
         # TODO check exists
-        if not (is_tags_exist and is_albums_exist and is_themes_exist):
+        if not (is_tags_exist and is_albums_correct and is_themes_exist):
             return make_response({"message": "Invalid request"}, 400)
 
         filename = secure_filename(file.filename)

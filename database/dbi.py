@@ -683,3 +683,20 @@ def delete_user_to_photo_access(photo_id, accesser_id):
             s.delete(rows[0])
         s.commit()
         return True
+
+
+def check_album_list_owner(user_id, album_list):
+    """+
+    Проверить все ли альбомы из списка
+    принадлежать пользователю с user_id
+    :param user_id:
+    :param album_list:
+    :return:
+    """
+    with Session() as s:
+        query = s.query(albums.id, albums.user_id) \
+            .filter(albums.id.in_(album_list))
+        rows = query.filter(albums.user_id == user_id)
+        if len(query.all()) == len(rows.all()):
+            return True
+        return False
