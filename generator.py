@@ -39,6 +39,7 @@ def generate_users(amount: int = 100) -> None:
     """
     if amount <= 0:
         return
+
     user_list: list[dict] = []
     for i in range(amount):
         user_list.append(random_user())
@@ -56,11 +57,9 @@ def generate_themes(t: list = None) -> None:
     """
     if t is None:
         t = ['Nature', 'Ocean', 'Mountains', 'Fire', 'Sky', 'Space', 'City', 'Animals']
-    if amount <= 0:
-        return
 
     theme_list: list[dict] = []
-    for th in range(t):
+    for th in t:
         theme = {
             'name': th
         }
@@ -80,11 +79,9 @@ def generate_tags(t: list = None) -> None:
     if t is None:
         t = ['#Nature', '#Ocean', '#Mountains', '#Fire', '#Sky', '#Space', '#City', '#Animals',
              '#cool', '#wow', '#lol', '#awesome', '#super', '#ilovelife', '#wealltogether', '#flowers']
-    if amount <= 0:
-        return
 
     tag_list: list[dict] = []
-    for tg in range(t):
+    for tg in t:
         tag = {
             'name': tg
         }
@@ -106,7 +103,6 @@ def generate_photos(amount: int = 100) -> None:
     amount_of_users = len(user_list)
 
     photo_list: list[dict] = []
-
     for i in range(amount):
         photo = {
             'user_id': randint(1, amount_of_users),
@@ -123,14 +119,66 @@ def generate_photos(amount: int = 100) -> None:
 
 
 def generate_photo_to_themes() -> None:
-    # get themes
-    pass
-    # get photos
-    # associate it in talbe
+    # get themes 'n photos
+    with Session() as s:
+        theme_list = s.query(themes).all()
+        photo_list = s.query(photos).all()
+
+        # associate it in table
+        photo_to_themes_list: list[dict] = []
+        for photo in photo_list:
+            ptt = {
+                'photo_id': photo.id,
+                'theme_id': choice(theme_list).id
+            }
+            photo_to_themes_list.append(ptt)
+
+        photo_to_themes_list = list(map(lambda ptt: photo_themes(**ptt), photo_to_themes_list))
+        s.bulk_save_objects(photo_to_themes_list)
+        s.commit()
 
 
 def generate_photo_to_tags() -> None:
+    # get tags 'n photos
+    with Session() as s:
+        tag_list = s.query(tags).all()
+        photo_list = s.query(photos).all()
+
+        # associate it in table
+        photo_to_tags_list: list[dict] = []
+        for photo in photo_list:
+            ptt = {
+                'photo_id': photo.id,
+                'tag_id': choice(tag_list).id
+            }
+            photo_to_tags_list.append(ptt)
+
+        photo_to_tags_list = list(map(lambda ptt: photo_tags(**ptt), photo_to_tags_list))
+        s.bulk_save_objects(photo_to_tags_list)
+        s.commit()
+
+
+def generate_photo_access() -> None:
     pass
+
+
+def generate_comments(amount: int = 100) -> None:
+    if amount <= 0:
+        return
+
+    # need to get users 'n photos
+
+    comment_list: list[dict] = []
+    for i in range(amount):
+        comment = {
+            'text': random_seq(100)
+        }
+        comment_list.append(comment)
+
+    comment_list = list(map(lambda c: comments(**c), comment_list))
+    with Session() as s:
+        s.bulk_save_objects(comment_list)
+        s.commit()
 
 
 def generate_albums(amount: int = 100) -> None:
@@ -150,8 +198,28 @@ def generate_albums(amount: int = 100) -> None:
         s.commit()
 
 
+def generate_photo_to_album() -> None:
+    pass
+
+
+def generate_album_access() -> None:
+    pass
+
+
 if __name__ == "__main__":
     init_database_session()
+
     # generate_users()
-    generate_photos()
+    # generate_themes()
+    # generate_tags()
+    # generate_photos()
+    # generate_photo_to_themes()
+    # generate_photo_to_tags()
+    # generate_comments()
+
     print(select_all_from(users))
+    print(select_all_from(themes))
+    print(select_all_from(tags))
+    print(select_all_from(photos))
+    print(select_all_from(photo_themes))
+    print(select_all_from(photo_tags))
