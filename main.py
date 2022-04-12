@@ -240,62 +240,60 @@ class User(Resource):
         }
         return make_response(result, 200)
 
+    @staticmethod
+    @user_api.doc(description="Удалить пользователя| Не сделано", summary="some")
+    # @user_api.doc(deprecated=True)
+    @requires_auth
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(403, "You cannot delete users", message_model)
+    def delete(user_id):
+        if not check_user_exist(user_id):
+            return make_response({"message": "User with this id not found"}, 404)
 
-@staticmethod
-@user_api.doc(description="Удалить пользователя| Не сделано", summary="some")
-@user_api.doc(deprecated=True)
-@requires_auth
-@user_api.response(200, "Success", message_model)
-@user_api.response(403, "You cannot delete users", message_model)
-def delete(user_id):
-    if not check_user_exist(user_id):
-        return make_response({"message": "User with this id not found"}, 404)
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
 
-    viewer_id = dbi.get_user_id(request.authorization.username)
-    viewer_is_admin = dbi.is_admin(viewer_id)
+        if viewer_id == user_id or viewer_is_admin:
+            dbi.delete_user(user_id)  # TODO check delete_user
+            return make_response({"message": "Success"}, 200)
 
-    if viewer_id == user_id or viewer_is_admin:
-        dbi.delete_user(user_id)  # TODO check delete_user
-        return make_response({"message": "Success"}, 200)
+        return make_response({"message": "You cannot delete users"}, 403)
 
-    return make_response({"message": "You cannot delete users"}, 403)
+    @staticmethod
+    @user_api.doc(description="Перезаписать информацию о пользователе")
+    @requires_auth
+    @user_api.expect(RequestParser()
+                     .add_argument(name="full_name", type=str, location="form")
+                     .add_argument(name="email", type=str, location="form")
+                     .add_argument(name="password", type=str, location="form")
+                     )
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(400, "Invalid request", message_model)
+    @user_api.response(403, "You cannot update this users", message_model)
+    def put(user_id):
+        if not check_user_exist(user_id):
+            make_response({"message": "User with this id not found"}, 404)
 
+        f = request.form
+        if not ("full_name" in f or "email" in f or "password" in f):
+            return make_response({"message": "Invalid request"}, 400)
 
-@staticmethod
-@user_api.doc(description="Перезаписать информацию о пользователе")
-@requires_auth
-@user_api.expect(RequestParser()
-                 .add_argument(name="full_name", type=str, location="form")
-                 .add_argument(name="email", type=str, location="form")
-                 .add_argument(name="password", type=str, location="form")
-                 )
-@user_api.response(200, "Success", message_model)
-@user_api.response(400, "Invalid request", message_model)
-@user_api.response(403, "You cannot update this users", message_model)
-def put(user_id):
-    if not check_user_exist(user_id):
-        make_response({"message": "User with this id not found"}, 404)
+        new_full_name = None if "full_name" not in f else f["full_name"]
+        new_email = None if "email" not in f else f["email"]
+        new_password = None if "password" not in f else f["password"]
 
-    f = request.form
-    if not ("full_name" in f or "email" in f or "password" in f):
-        return make_response({"message": "Invalid request"}, 400)
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
 
-    new_full_name = None if "full_name" not in f else f["full_name"]
-    new_email = None if "email" not in f else f["email"]
-    new_password = None if "password" not in f else f["password"]
+        if viewer_id == user_id or viewer_is_admin:
+            dbi.change_user(user_id,
+                            full_name=new_full_name,
+                            password=new_password,
+                            email=new_email
+                            )  # TODO check change_user
+            return make_response({"message": "Success"}, 200)
 
-    viewer_id = dbi.get_user_id(request.authorization.username)
-    viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
-
-    if viewer_id == user_id or viewer_is_admin:
-        dbi.change_user(user_id,
-                        full_name=new_full_name,
-                        password=new_password,
-                        email=new_email
-                        )  # TODO check change_user
-        return make_response({"message": "Success"}, 200)
-
-    return make_response({"message": "You cannot delete users"}, 403)
+        return make_response({"message": "You cannot delete users"}, 403)
 
 
 @user_api.route("/user/<int:user_id>/album")
@@ -518,9 +516,16 @@ class Photo(Resource):
         is_albums_exist = True if not album_list else dbi.albums_exist(album_list)
         is_themes_exist = True if not theme_list else dbi.themes_exist(theme_list)
 
-        is_albums_correct = is_albums_exist and dbi.check_album_list_owner(viewer_id, album_list)
+        if album_list:
+            is_albums_correct = is_albums_exist and dbi.check_album_list_owner(viewer_id, album_list)
+        else:
+            is_albums_correct = is_albums_exist
+
         # TODO check exists
         if not (is_tags_exist and is_albums_correct and is_themes_exist):
+            print(is_tags_exist)
+            print(is_albums_correct)
+            print(is_themes_exist)
             return make_response({"message": "Invalid request"}, 400)
 
         filename = secure_filename(file.filename)
