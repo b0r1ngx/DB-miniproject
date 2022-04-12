@@ -9,3 +9,9 @@ class album_access(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     album_id = Column(Integer, ForeignKey("albums.id", ondelete="CASCADE"))
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+
+    def __str__(self):
+        return f"id:{self.id}\talbum:{self.album_id}\tuser:{self.user_id}"
+
+    def __repr__(self):
+        return self.__str__()
