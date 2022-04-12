@@ -185,7 +185,9 @@ width INTEGER NOT NULL,
 height INTEGER NOT NULL,
 place TEXT NOT NULL
 ```
-### Наполнение БД данными
+
+### Наполнение БД данными (и генерация)
+В файле `generator.py` 
 
 
 ## Взаимодействие с ORM
@@ -249,7 +251,7 @@ Base.metadata.create_all(engine)
 ```
 #### Взаимодействие с БД, при помощи Session()
 
-Чтобы, выполнить запрос к Базе Данных, через ORM, можно воспользоваться тремя видами обращений:
+Чтобы, выполнить запрос к Базе Данных, через ORM, можно воспользоваться двумя видами обращений:
 * INSERT INTO users (full_name, email, password)\
   VALUES ('{full_name}', '{email}', '{password}')
 
