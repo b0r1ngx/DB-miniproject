@@ -2,6 +2,15 @@ from database.db_session import Session
 from database.tables.users import users
 from database.tables.photos import photos
 from database.tables.albums import albums
+from database.tables.themes import themes
+from database.tables.tags import tags
+from database.tables.themes import themes
+from database.tables.photo_tags import photo_tags
+from database.tables.album_access import album_access
+from database.tables.album_photos import album_photos
+from database.tables.photo_themes import photo_themes
+from database.tables.comments import comments
+
 from sqlalchemy import insert
 from psycopg2.errors import *
 from sqlalchemy.exc import *
@@ -10,6 +19,8 @@ from sqlalchemy.exc import *
 def select_all_from(table) -> list:
     with Session() as s:
         user_list = s.query(table).all()
+    # with session as s:
+    #     user_list = s.query(table).all()
     return user_list
 
 
@@ -201,21 +212,25 @@ def is_album_name_not_exists(user_id: int, name: str) -> bool:
     return True
 
 
-def create_album(user_id: int, name: str, description: str) -> bool:
+def create_album(user_id: int, name: str, description: str):
     """+
     Создать новый альбом
     :param user_id:
     :param name:
     :param description:
-    :return:
+    :return: dict or None
     """
     with Session() as s:
         if is_album_name_not_exists(user_id, name):
-            s.add(albums(user_id=user_id, name=name, description=description))
+            new_album = albums(user_id=user_id, name=name, description=description)
+            s.add(new_album)
             s.commit()
-        else:
-            return False
-    return True
+            new_album = {
+                "id": new_album.id,
+                "name": new_album.name,
+            }
+            return new_album
+    return None
 
 
 def is_album_exist(user_id: int, album_id: int) -> bool:
@@ -297,12 +312,36 @@ def create_photo(user_id: int, url: str, description: str, album_list: list[int]
     :param tag_list:
     :param theme_list:
     :param is_private:
-    :return:
+    :return: dict or None
     """
     with Session() as s:
-        s.add(photos(user_id=user_id, url=url, description=description, private=is_private))
+        new_photo = photos(user_id=user_id,
+                           url=url,
+                           description=description,
+                           private=is_private)
+        s.add(new_photo)
+
         s.add(photo_themes())
         s.commit()
+        new_photo_id = new_photo.id
+        new_photo_url = new_photo.url
+        if theme_list:
+            for theme_id in theme_list:
+                s.add(photo_themes(photo_id=new_photo_id,
+                                   theme_id=theme_id))
+        if tag_list:
+            for tag_id in tag_list:
+                s.add(photo_tags(photo_id=new_photo_id,
+                                 tag_id=tag_id))
+        if album_list:
+            for album_id in album_list:
+                s.add(album_photos(photo_id=new_photo_id,
+                                   album_id=album_id))
+        s.commit()  # TODO Проверить хорошо ли добавляет
+        return {
+            "id": new_photo_id,
+            "url": new_photo_url
+        }
 
 
 def albums_exist(album_list: list[int]) -> bool:
@@ -385,7 +424,6 @@ def get_photo(photo_id: int, viewer_id: int):
         stmt = f'''SELECT * FROM photos
                    LEFT JOIN photo_access pa USING ()
                    '''
-
 
 
 def is_photo_exist(photo_id):
@@ -474,9 +512,31 @@ def is_tag_exist(tag_id):
 
 
 def create_theme(name):
-    """
+    """+
     Вернуть id и название
     :param name:
+    :return: dict or None
+    """
+    try:
+        with Session() as s:
+            new_theme = themes(name=name)
+            s.add(new_theme)
+            s.commit()
+            return {
+                "id": new_theme.id,
+                "name": new_theme.name
+            }
+    except IntegrityError:
+        print("Такая тема уже существует")
+    return None
+
+
+def get_photos_by_tag(tag_id, viewer_id):
+    """
+    Получить все фото, у которых есть тег tag_id
+    и которые доступны viewer_id
+    :param tag_id:
+    :param viewer_id:
     :return:
     """
     pass
@@ -497,13 +557,25 @@ def get_tag_list():
     Получить список существующих тегов
     :return:
     """
-    pass
+    with Session() as s:
+        return select_all_from(tags)
 
 
 def create_tag(name):
-    """
+    """+
     Вернуть id и название
     :param name:
-    :return:
+    :return: dict or None
     """
-    pass
+    try:
+        with Session() as s:
+            new_tag = tags(name=name)
+            s.add(new_tag)
+            s.commit()
+            return {
+                "id": new_tag.id,
+                "name": new_tag.name
+            }
+    except IntegrityError:
+        print("Такой тег уже существует")
+    return None

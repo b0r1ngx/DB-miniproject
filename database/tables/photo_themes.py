@@ -10,3 +10,9 @@ class photo_themes(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     photo_id = Column(Integer, ForeignKey("photos.id"))
     theme_id = Column(Integer, ForeignKey("themes.id"))
+
+    def __str__(self):
+        return f"theme_to_photo:\t<id: {self.id},\ttheme_id:{self.theme_id},\tphoto_id: {self.photo_id}>"
+
+    def __repr__(self):
+        return self.__str__()

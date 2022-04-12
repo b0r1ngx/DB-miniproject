@@ -10,7 +10,7 @@ from constants import db
 Base = declarative_base()
 # interaction with DB
 Session: Session = sessionmaker()
-
+# session = sessionmaker()
 
 def init_database_session() -> None:
     """Initialize global Session for interacting with DB.
@@ -20,6 +20,7 @@ def init_database_session() -> None:
     engine = create_engine(url=db, echo=False, pool_size=10, max_overflow=0, poolclass=QueuePool, pool_pre_ping=True)
 
     print('Подключение к базе данных')
+    # session.configure(bind=engine)
     Session.configure(bind=engine)
 
     if not database_exists(engine.url):

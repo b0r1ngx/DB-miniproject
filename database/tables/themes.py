@@ -11,3 +11,9 @@ class themes(Base):
 
     # Relations
     photo_themes = orm.relation("photo_themes", backref="themes")
+
+    def __str__(self):
+        return f"Theme <id: {self.id}, name: {self.name}>"
+
+    def __repr__(self):
+        return self.__str__()

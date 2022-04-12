@@ -11,3 +11,9 @@ class tags(Base):
 
     # Relations
     photo_tags = orm.relation("photo_tags", backref="tags")
+
+    def __str__(self):
+        return f"Tag <id: {self.id}, name: {self.name}>"
+
+    def __repr__(self):
+        return self.__str__()

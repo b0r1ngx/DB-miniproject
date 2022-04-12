@@ -10,3 +10,9 @@ class photo_tags(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     photo_id = Column(Integer, ForeignKey("photos.id"))
     tag_id = Column(Integer, ForeignKey("tags.id"))
+
+    def __str__(self):
+        return f"tag_to_photo:\t<id: {self.id},\ttag_id:{self.tag_id},\tphoto_id: {self.photo_id}>"
+
+    def __repr__(self):
+        return self.__str__()

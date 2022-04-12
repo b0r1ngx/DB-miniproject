@@ -24,3 +24,12 @@ class albums(Base):
 
     def __repr__(self):
         return self.__str__()
+
+    # def __dict__(self):
+    #     return {
+    #         "id": self.id,
+    #         "user_id": self.user_id,
+    #         "name": self.name,
+    #         "description": self.description,
+    #         "created_at": self.created_at
+    #     }
