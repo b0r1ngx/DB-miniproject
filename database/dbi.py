@@ -149,15 +149,20 @@ def delete_user(user_id):
     :param user_id:
     :return:
     """
-    pass
+    with Session() as s:
+        s.query(users).filter(users.id == user_id).delete()
+        s.commit()
+
 
 def delete_album(album_id):
-    """
-
+    """Удалить альбом
     :param album_id:
     :return:
     """
-    pass
+    with Session() as s:
+        s.query(albums).filter(albums.id == album_id).delete()
+        s.commit()
+
 
 def delete_photo(photo_id):
     """
@@ -165,7 +170,9 @@ def delete_photo(photo_id):
     :param photo_id:
     :return:
     """
-    pass
+    with Session() as s:
+        s.query(photos).filter(photos.id == photo_id).delete()
+        s.commit()
 
 
 def delete_comment(comment_id):
@@ -174,7 +181,9 @@ def delete_comment(comment_id):
     :param comment_id:
     :return:
     """
-    pass
+    with Session() as s:
+        s.query(comments).filter(comments.id == comment_id).delete()
+        s.commit()
 
 
 def change_user(user_id: int, full_name: str = None, email: str = None, password: str = None) -> bool:
@@ -329,20 +338,16 @@ def change_album(album_id, name=None, description=None):
     return True
 
 
-def delete_album(album_id):
-    """
-    Удалить альбом (что с фото?)
-    Удалить альбом + все записи о нем в других таблицах (с ним в album_access)
-    :param album_id:
-    :return:
-    """
-    pass
+def delete_theme(theme_id):
+    with Session() as s:
+        s.query(themes).filter(themes.id == theme_id).delete()
+        s.commit()
+
 
 def delete_tag(tag_id):
-    pass
-
-def delete_theme(theme_id):
-    pass
+    with Session() as s:
+        s.query(tags).filter(tags.id == tag_id).delete()
+        s.commit()
 
 
 def create_photo(user_id: int, url: str, description: str, album_list: list[int],
@@ -467,6 +472,7 @@ def get_photo(photo_id: int, viewer_id: int):
     with Session() as s:
         stmt = f'''SELECT * FROM photos
                    LEFT JOIN photo_access pa USING ()'''
+    pass
 
 
 def is_photo_exist(photo_id):

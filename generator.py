@@ -123,7 +123,10 @@ def generate_photos(amount: int = 100) -> None:
 
 
 def generate_photo_to_themes() -> None:
+    # get themes
     pass
+    # get photos
+    # associate it in talbe
 
 
 def generate_photo_to_tags() -> None:
