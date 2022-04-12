@@ -135,9 +135,10 @@ def check_user_exist(user_id):
 
 
 def check_album_exist(user_id, album_id):
-    # TODO check check_album_exist
-    if not dbi.is_album_exist(user_id, album_id):
-        return make_response({"message": "Not found album with this ID"}, 404)
+    return dbi.is_album_exist(user_id, album_id)
+    # # TODO check check_album_exist
+    # if not dbi.is_album_exist(user_id, album_id):
+    #     return make_response({"message": "Not found album with this ID"}, 404)
 
 
 def check_photo_exist(photo_id):
@@ -350,11 +351,48 @@ class UserAlbum(Resource):
         return make_response({"message": "You cannot create album for this user"}, 403)
 
 
-# @user_api.route("/user/<int:user_id>/album/<int:album_id>")
-# @admin_api.route("/user/<int:user_id>/album/<int:album_id>")
-# @user_api.response(404, "User with this id not found", message_model)
-# @user_api.response(404, "Album with this id not found", message_model)
-# class UserAlbumID(Resource):
+@user_api.route("/user/<int:user_id>/album/<int:album_id>")
+@user_api.response(404, "User with this id not found", message_model)
+@user_api.response(404, "Album with this id not found", message_model)
+class UserAlbumID(Resource):
+    @staticmethod
+    @user_api.doc(description="Добавить фото в альбом")
+    @requires_auth
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(403, "You cannot add photos into this album", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="photos_id", type=int, location="form", action="append", required=True)
+                     )
+    def post(user_id, album_id):
+        if not check_user_exist(user_id):
+            return make_response({"message": "User with this id not found"}, 404)
+        if not check_album_exist(user_id, album_id):
+            return make_response({"message": "Album with this id not found"}, 404)
+
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        f = request.form
+        if "photos_id" not in f:
+            return make_response({"message": "Invalid request"}, 400)
+        photo_id_list = f.getlist("photos_id")
+
+        photo_list_is_correct = dbi.check_photo_list_owner(user_id, photo_id_list)
+        if not photo_list_is_correct:
+            return make_response({"message": f"Invalid request. This is another user's photo"}, 400)
+
+        print(f"viewer_id: {viewer_id},\tuser_id: {user_id},\tviewer_is_admin:{viewer_is_admin}")
+        if viewer_id == user_id or viewer_is_admin:
+            dbi.add_many_photos_to_album(photo_id_list, album_id)
+            return make_response({"message": "Success"}, 200)
+
+        return make_response({"message": "You cannot add photos into this album"}, 403)
+
+
+
+
+
+
 #     @staticmethod
 #     @user_api.doc(description="Получить информацию о альбоме")
 #     @user_api.response(200, "Success", album_model)

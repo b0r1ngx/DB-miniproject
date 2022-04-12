@@ -700,3 +700,47 @@ def check_album_list_owner(user_id, album_list):
         if len(query.all()) == len(rows.all()):
             return True
         return False
+
+
+def check_photo_list_owner(user_id, photo_list):
+    """+
+    Проверить все ли фото из списка
+    принадлежать пользователю с user_id
+    :param photo_list:
+    :param user_id:
+    :return:
+    """
+    with Session() as s:
+        query = s.query(photos.id, photos.user_id) \
+            .filter(photos.id.in_(photo_list))
+        rows = query.filter(photos.user_id == user_id)
+        if len(query.all()) == len(rows.all()):
+            # print("123")
+            return True
+        return False
+
+
+def add_photo_to_album(photo_id, album_id):
+    with Session() as s:
+        rows = s.query(album_photos).filter(
+            album_photos.photo_id == photo_id,
+            album_photos.album_id == album_id
+        ).all()
+
+        if len(rows) == 0:
+            new_album_photo = album_photos(
+                photo_id=photo_id,
+                album_id=album_id
+            )
+            s.add(new_album_photo)
+            s.commit()
+            new_album_photo_id = new_album_photo.id
+            return new_album_photo_id
+
+        return rows[0].id
+
+
+def add_many_photos_to_album(photo_id_list, album_id):
+    for photo_id in photo_id_list:
+        add_photo_to_album(photo_id, album_id)
+    return True
