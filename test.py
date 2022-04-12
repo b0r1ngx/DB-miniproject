@@ -35,22 +35,16 @@ if __name__ == "__main__":
     # print(get_tag_list())
     # print(albums_exist([1]))
 
-    while True:
-        my_list = select_all_from(albums)
-        for row in my_list:
-            print(row)
+    # while True:
+    #     my_list = select_all_from(photo_access)
+    #     for row in my_list:
+    #         print(row)
+    # #
+    # #     check_album_list_owner(2, [1, 2, 4, 5])
+    # #
+    #     print(get_users_photos(2, 9))
+    #     input("press Enter")
 
-        check_album_list_owner(2, [1, 2, 4, 5])
+    print(get_user_info(3))
 
-        input("press Enter")
-
-    # add_user_to_photo_access(7, 8)
-    # my_list = select_all_from(photo_access)
-    # for row in my_list:
-    #     print(row)
-    # delete_user_to_photo_access(7, 8)
-    # print("-----------------")
-    # my_list = select_all_from(photo_access)
-    # for row in my_list:
-    #     print(row)
 

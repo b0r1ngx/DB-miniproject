@@ -136,9 +136,6 @@ def check_user_exist(user_id):
 
 def check_album_exist(user_id, album_id):
     return dbi.is_album_exist(user_id, album_id)
-    # # TODO check check_album_exist
-    # if not dbi.is_album_exist(user_id, album_id):
-    #     return make_response({"message": "Not found album with this ID"}, 404)
 
 
 def check_photo_exist(photo_id):
@@ -218,104 +215,107 @@ class Registration(Resource):
         return make_response({"token": token64}, 200)
 
 
-# @user_api.route("/user/<int:user_id>")
-# @user_api.response(404, "Not found user with this ID", message_model)
-# class User(Resource):
-#     @staticmethod
-#     @user_api.doc(description="Получить информацию о пользователе")
-#     @user_api.response(200, "Success", user_model)
-#     def get(user_id):
-#                 if not check_user_exist(user_id):
-#             make_response({"message": "User with this id not found"}, 404)
-#
-#         auth = request.authorization
-#         viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
-#
-#         user = dbi.do_user_have_access_to_other_user_photos(user_id, viewer_id)
-#         # TODO do_user_have_access_to_other_user_photos check
-#
-#         #     {
-#         #     "id": 1,
-#         #     "full_name": fields.String,
-#         #     "email": fields.String,
-#         #     "date": fields.DateTime,
-#         #     "photos": fields.List(fields.Nested(photo_preview_model))  #
-#         # }
-#         # TODO Преобразовать user к dict правильной формы
-#         return make_response(user, 200)
+@user_api.route("/user/<int:user_id>")
+@user_api.response(404, "Not found user with this ID", message_model)
+class User(Resource):
+    @staticmethod
+    @user_api.doc(description="Получить информацию о пользователе")
+    @user_api.response(200, "Success", user_model)
+    def get(user_id):
+        if not check_user_exist(user_id):
+            make_response({"message": "User with this id not found"}, 404)
 
-# @staticmethod
-# @user_api.doc(description="Удалить пользователя")
-# @requires_auth
-# @user_api.response(200, "Success", message_model)
-# @user_api.response(403, "You cannot delete users", message_model)
-# def delete(user_id):
-#             if not check_user_exist(user_id):
-#             make_response({"message": "User with this id not found"}, 404)
-#
-#     viewer_id = dbi.get_user_id(request.authorization.username)
-#     viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
-#
-#     if viewer_id == user_id or viewer_is_admin:
-#         dbi.delete_user(user_id)  # TODO check delete_user
-#         return make_response({"message": "Success"}, 200)
-#
-#     return make_response({"message": "You cannot delete users"}, 403)
+        auth = request.authorization
+        viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
 
-# @staticmethod
-# @user_api.doc(description="Перезаписать информацию о пользователе")
-# @requires_auth
-# @user_api.expect(RequestParser()
-#                  .add_argument(name="full_name", type=str, location="form")
-#                  .add_argument(name="email", type=str, location="form")
-#                  .add_argument(name="password", type=str, location="form")
-#                  )
-# @user_api.response(200, "Success", message_model)
-# @user_api.response(400, "Invalid request", message_model)
-# @user_api.response(403, "You cannot update this users", message_model)
-# def put(user_id):
-#             if not check_user_exist(user_id):
-#             make_response({"message": "User with this id not found"}, 404)
-#
-#     f = request.form
-#     if not ("full_name" in f or "email" in f or "password" in f):
-#         return make_response({"message": "Invalid request"}, 400)
-#
-#     new_full_name = None if "full_name" not in f else f["full_name"]
-#     new_email = None if "email" not in f else f["email"]
-#     new_password = None if "password" not in f else f["password"]
-#
-#     viewer_id = dbi.get_user_id(request.authorization.username)
-#     viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
-#
-#     if viewer_id == user_id or viewer_is_admin:
-#         dbi.change_user(user_id,
-#                         full_name=new_full_name,
-#                         password=new_password,
-#                         email=new_email
-#                         )  # TODO check change_user
-#         return make_response({"message": "Success"}, 200)
-#
-#     return make_response({"message": "You cannot delete users"}, 403)
+        photos = dbi.get_users_photos(user_id, viewer_id)
+        user = dbi.get_user_info(user_id)
+        # user = dbi.do_user_have_access_to_other_user_photos(user_id, viewer_id)
+        result = {
+            "id": user.id,
+            "full_name": user.full_name,
+            "email": user.email,
+            "date": user.created_at,
+            "photos": photos
+        }
+        return make_response(result, 200)
+
+
+@staticmethod
+@user_api.doc(description="Удалить пользователя| Не сделано", summary="some")
+@user_api.doc(deprecated=True)
+@requires_auth
+@user_api.response(200, "Success", message_model)
+@user_api.response(403, "You cannot delete users", message_model)
+def delete(user_id):
+    if not check_user_exist(user_id):
+        return make_response({"message": "User with this id not found"}, 404)
+
+    viewer_id = dbi.get_user_id(request.authorization.username)
+    viewer_is_admin = dbi.is_admin(viewer_id)
+
+    if viewer_id == user_id or viewer_is_admin:
+        dbi.delete_user(user_id)  # TODO check delete_user
+        return make_response({"message": "Success"}, 200)
+
+    return make_response({"message": "You cannot delete users"}, 403)
+
+
+@staticmethod
+@user_api.doc(description="Перезаписать информацию о пользователе")
+@requires_auth
+@user_api.expect(RequestParser()
+                 .add_argument(name="full_name", type=str, location="form")
+                 .add_argument(name="email", type=str, location="form")
+                 .add_argument(name="password", type=str, location="form")
+                 )
+@user_api.response(200, "Success", message_model)
+@user_api.response(400, "Invalid request", message_model)
+@user_api.response(403, "You cannot update this users", message_model)
+def put(user_id):
+    if not check_user_exist(user_id):
+        make_response({"message": "User with this id not found"}, 404)
+
+    f = request.form
+    if not ("full_name" in f or "email" in f or "password" in f):
+        return make_response({"message": "Invalid request"}, 400)
+
+    new_full_name = None if "full_name" not in f else f["full_name"]
+    new_email = None if "email" not in f else f["email"]
+    new_password = None if "password" not in f else f["password"]
+
+    viewer_id = dbi.get_user_id(request.authorization.username)
+    viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
+
+    if viewer_id == user_id or viewer_is_admin:
+        dbi.change_user(user_id,
+                        full_name=new_full_name,
+                        password=new_password,
+                        email=new_email
+                        )  # TODO check change_user
+        return make_response({"message": "Success"}, 200)
+
+    return make_response({"message": "You cannot delete users"}, 403)
 
 
 @user_api.route("/user/<int:user_id>/album")
 @user_api.response(404, "User with this id not found", message_model)
 class UserAlbum(Resource):
-    #     @staticmethod
-    #     @user_api.doc(description="Получить все альбомы пользователя")
-    #     @user_api.response(200, "Success", album_list_model)
-    #     def get(user_id):
-    #                 if not check_user_exist(user_id):
-    #             make_response({"message": "User with this id not found"}, 404)
-    #
-    #         auth = request.authorization
-    #         viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
-    #
-    #         album_list = dbi.get_albums_by_user_id(user_id, viewer_id)  # TODO chek get_albums_by_user_id
-    #         # TODO преобразовать в нужный формат
-    #         return make_response(album_list, 200)
-    #
+    @staticmethod
+    @user_api.doc(description="Получить все альбомы пользователя|Не доделано")
+    @user_api.response(200, "Success", album_list_model)
+    def get(user_id):
+        return "Не доделано"
+        # if not check_user_exist(user_id):
+        #     make_response({"message": "User with this id not found"}, 404)
+        #
+        # auth = request.authorization
+        # viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+        #
+        # album_list = dbi.get_albums_by_user_id(user_id, viewer_id)  # TODO chek get_albums_by_user_id
+        # # TODO преобразовать в нужный формат
+        # return make_response(album_list, 200)
+
     @staticmethod
     @user_api.doc(description="Создать новый альбом для пользователя")
     @requires_auth
@@ -388,97 +388,97 @@ class UserAlbumID(Resource):
 
         return make_response({"message": "You cannot add photos into this album"}, 403)
 
+    @staticmethod
+    @user_api.doc(description="Получить информацию о альбоме|Не доделано")
+    @user_api.response(200, "Success", album_model)
+    @user_api.response(403, "You cannot get this album", message_model)
+    def get(user_id, album_id):
+        return "Не доделано"
+        # if not check_user_exist(user_id):
+        #     make_response({"message": "User with this id not found"}, 404)
+        # check_album_exist(user_id, album_id)
+        #
+        # auth = request.authorization
+        # viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+        #
+        # is_album_access = dbi.get_album_access(viewer_id, album_id)  # TODO check get_album_access
+        # if is_album_access:
+        #     album = dbi.get_album(album_id)  # TODO check get_album
+        #     # TODO преобразовать в нужный формат
+        #     return make_response(album, 200)
+        #
+        # return make_response({"message": "You cannot get this album"}, 403)
+
+    @staticmethod
+    @user_api.doc(description="Изменить информацию о альбоме|Не доделано")
+    @requires_auth
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(400, "Invalid request", message_model)
+    @user_api.response(403, "You cannot update this album", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="name", type=str, location="form")
+                     .add_argument(name="description", type=str, location="form")
+                     )
+    def put(user_id, album_id):
+        return "Не доделано"
+        # if not check_user_exist(user_id):
+        #     make_response({"message": "User with this id not found"}, 404)
+        # check_album_exist(user_id, album_id)
+        #
+        # viewer_id = dbi.get_user_id(request.authorization.username)
+        # viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
+        #
+        # f = request.form
+        # if not ("full_name" in f or "email" in f or "password" in f):
+        #     return make_response({"message": "Invalid request"}, 400)
+        # name = None if "name" not in f else f["name"]
+        # description = None if "description" not in f else f["description"]
+        #
+        # if viewer_id == user_id or viewer_is_admin:
+        #     dbi.change_album(album_id,
+        #                      name=name,
+        #                      description=description
+        #                      )  # TODO check change_album
+        #     return make_response({"message": "Success"}, 200)
+        #
+        # return make_response({"message": "You cannot update this album"}, 403)
+
+    @staticmethod
+    @user_api.doc(description="Удалить альбом")
+    @requires_auth
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(403, "You cannot delete this album", message_model)
+    def delete(user_id, album_id):
+        if not check_user_exist(user_id):
+            return make_response({"message": "User with this id not found"}, 404)
+        if not check_album_exist(user_id, album_id):
+            return make_response({"message": "Album with this id not found"}, 404)
+
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        if viewer_id == user_id or viewer_is_admin:
+            dbi.delete_album(album_id)  # TODO check delete_album
+            return make_response({"message": "Success"}, 200)
+
+        return make_response({"message": "You cannot delete this album"}, 403)
 
 
-
-
-
-#     @staticmethod
-#     @user_api.doc(description="Получить информацию о альбоме")
-#     @user_api.response(200, "Success", album_model)
-#     @user_api.response(403, "You cannot get this album", message_model)
-#     def get(user_id, album_id):
-#                 if not check_user_exist(user_id):
-#             make_response({"message": "User with this id not found"}, 404)
-#         check_album_exist(user_id, album_id)
-#
-#         auth = request.authorization
-#         viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
-#
-#         is_album_access = dbi.get_album_access(viewer_id, album_id)  # TODO check get_album_access
-#         if is_album_access:
-#             album = dbi.get_album(album_id)  # TODO check get_album
-#             # TODO преобразовать в нужный формат
-#             return make_response(album, 200)
-#
-#         return make_response({"message": "You cannot get this album"}, 403)
-
-# @staticmethod
-# @user_api.doc(description="Изменить информацию о альбоме")
-# @requires_auth
-# @user_api.response(200, "Success", message_model)
-# @user_api.response(400, "Invalid request", message_model)
-# @user_api.response(403, "You cannot update this album", message_model)
-# @user_api.expect(RequestParser()
-#                  .add_argument(name="name", type=str, location="form")
-#                  .add_argument(name="description", type=str, location="form")
-#                  )
-# def put(user_id, album_id):
-#             if not check_user_exist(user_id):
-#             make_response({"message": "User with this id not found"}, 404)
-#     check_album_exist(user_id, album_id)
-#
-#     viewer_id = dbi.get_user_id(request.authorization.username)
-#     viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
-#
-#     f = request.form
-#     if not ("full_name" in f or "email" in f or "password" in f):
-#         return make_response({"message": "Invalid request"}, 400)
-#     name = None if "name" not in f else f["name"]
-#     description = None if "description" not in f else f["description"]
-#
-#     if viewer_id == user_id or viewer_is_admin:
-#         dbi.change_album(album_id,
-#                          name=name,
-#                          description=description
-#                          )  # TODO check change_album
-#         return make_response({"message": "Success"}, 200)
-#
-#     return make_response({"message": "You cannot update this album"}, 403)
-#
-# @staticmethod
-# @user_api.doc(description="Удалить альбом")
-# @requires_auth
-# @user_api.response(200, "Success", message_model)
-# @user_api.response(403, "You cannot delete this album", message_model)
-# def delete(user_id, album_id):
-#             if not check_user_exist(user_id):
-#             make_response({"message": "User with this id not found"}, 404)
-#     check_album_exist(user_id, album_id)
-#
-#     viewer_id = dbi.get_user_id(request.authorization.username)
-#     viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
-#
-#     if viewer_id == user_id or viewer_is_admin:
-#         dbi.delete_user(album_id)  # TODO check delete_album
-#         return make_response({"message": "Success"}, 200)
-#
-#     return make_response({"message": "You cannot delete this album"}, 403)
-
-
-# @user_api.route("/search")
-# class Search(Resource):
-#     @staticmethod
-#     @user_api.response(200, "Success", photo_list_model)
-#     @user_api.expect(RequestParser()
-#                      .add_argument(name="theme_id", type=int, location="form", required=True)
-#                      .add_argument(name="tag_id", type=int, location="form")  # Поиск по множеству тегов/тем??
-#                      .add_argument(name="created_at", type=str, location="form")
-#                      .add_argument(name="amount", type=int, location="form")
-#                      .add_argument(name="page", type=int, location="form")
-#                      )
-#     def get():
-#         pass
+@user_api.route("/search")
+class Search(Resource):
+    @staticmethod
+    @user_api.doc(description="Поиск|Не доделано")
+    @user_api.response(200, "Success", photo_list_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="theme_id", type=int, location="form", required=True)
+                     .add_argument(name="tag_id", type=int, location="form")  # Поиск по множеству тегов/тем??
+                     .add_argument(name="created_at", type=str, location="form")
+                     .add_argument(name="amount", type=int, location="form")
+                     .add_argument(name="page", type=int, location="form")
+                     )
+    def get():
+        return "Не доделано"
+        pass
 
 
 @user_api.route("/photo")
@@ -550,50 +550,52 @@ class UploadFile(Resource):
                                    filename)
 
 
-# @user_api.route("/photo/<int:photo_id>")
-# @user_api.response(404, "Not found photo with this ID", message_model)
-# class PhotoID(Resource):
-#     @staticmethod
-#     @user_api.doc(description="Получить полную информацию о фото")
-#     @user_api.response(200, "Success", photo_model)
-#     def get(photo_id):
-#                 if not check_photo_exist(photo_id):
-#             return make_response({"message": "Not found photo with this ID"}, 404)
-#
-#         auth = request.authorization
-#         viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
-#
-#         photo = dbi.get_photo(photo_id, viewer_id)
-#         # TODO преобразовать к нужному формату
-#         return make_response(photo, 200)
+@user_api.route("/photo/<int:photo_id>")
+@user_api.response(404, "Not found photo with this ID", message_model)
+class PhotoID(Resource):
+    @staticmethod
+    @user_api.doc(description="Получить полную информацию о фото | Не доделано")
+    @user_api.response(200, "Success", photo_model)
+    def get(photo_id):
+        return "Не доделано"
+        # if not check_photo_exist(photo_id):
+        #     return make_response({"message": "Not found photo with this ID"}, 404)
+        #
+        # auth = request.authorization
+        # viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+        #
+        # photo = dbi.get_photo(photo_id, viewer_id)
+        # # TODO преобразовать к нужному формату
+        # return make_response(photo, 200)
 
-# @staticmethod
-# @user_api.doc(description="Изменить информацию о фото")
-# @requires_auth
-# @user_api.response(200, "Success", photo_model)
-# @user_api.response(403, "You cannot update this photo", message_model)
-# @user_api.expect(RequestParser()
-#                  .add_argument(name="description", type=str, location="form")
-#                  .add_argument(name="albums", type=int, location="form", action="append")
-#                  .add_argument(name="tags", type=int, location="form", action="append")
-#                  .add_argument(name="themes", type=int, location="form", action="append")
-#                  .add_argument(name="private or no", type=bool, location="form")
-#                  )
-# def put(photo_id):
-#         if not check_photo_exist(photo_id):
-#             return make_response({"message": "Not found photo with this ID"}, 404)
-#     f = request.form
-#     albums = f.getlist()
-#     print(123)
-#     pass
+    @staticmethod
+    @user_api.doc(description="Изменить информацию о фото| Не доделано")
+    @requires_auth
+    @user_api.response(200, "Success", photo_model)
+    @user_api.response(403, "You cannot update this photo", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="description", type=str, location="form")
+                     .add_argument(name="albums", type=int, location="form", action="append")
+                     .add_argument(name="tags", type=int, location="form", action="append")
+                     .add_argument(name="themes", type=int, location="form", action="append")
+                     .add_argument(name="private or no", type=bool, location="form")
+                     )
+    def put(photo_id):
+        return "Не доделано"
+        # if not check_photo_exist(photo_id):
+        #     return make_response({"message": "Not found photo with this ID"}, 404)
+        # f = request.form
+        # albums = f.getlist()
+        # print(123)
+        # pass
 
-# @staticmethod
-# @user_api.doc(description="Удалить фото")
-# @requires_auth
-# @user_api.response(200, "Success", message_model)
-# @user_api.response(403, "You cannot delete this photo", message_model)
-# def delete(photo_id):
-#     pass
+    @staticmethod
+    @user_api.doc(description="Удалить фото |Не доделано")
+    @requires_auth
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(403, "You cannot delete this photo", message_model)
+    def delete(photo_id):
+        return "Не доделано"  # TODO сделать как будет готово dbi.delete_photo
 
 
 @user_api.route("/photo/<int:photo_id>/accessList")
@@ -676,7 +678,7 @@ class Comment(Resource):
     @user_api.expect(RequestParser()
                      .add_argument(name="text", type=str, location="form", required=True)
                      )
-    def post(photo_id):
+    def post(photo_id):  # TODO протестить
         if not check_photo_exist(photo_id):
             return make_response({"message": "Not found photo with this ID"}, 404)
 
@@ -689,50 +691,51 @@ class Comment(Resource):
         text = f["text"]
 
         is_access = dbi.get_access_to_photo_by_user_id(photo_id, viewer_id)
-        # TODO check get_access_to_photo_by_user_id
 
         if is_access or viewer_is_admin:
-            comment = dbi.add_comment(viewer_id, photo_id, text)  # TODO check add_comment
+            comment = dbi.add_comment(viewer_id, photo_id, text)
             return make_response(comment, 200)
         return make_response({"message": "You do not have access to this photo"}, 403)
 
 
-# @user_api.route("/photo/<int:photo_id>/comment/<int:comment_id>")
-# class CommentID(Resource):
-# @staticmethod
-# @user_api.expect(RequestParser()
-#                  .add_argument(name="text", type=str, location="form", required=True)
-#                  )
-# @api.doc(security='basicAuth')
-# @user_api.response(200, "Success", comment_model)
-# @user_api.response(401, "You must be logged in", message_model)
-# @user_api.response(403, "You do not have access to this comment", message_model)
-# @user_api.response(404, "Not found photo with this ID", message_model)
-# @user_api.response(404, "Not found comment with this ID", message_model)
-# def put(photo_id, comment_id):
-#     pass
-#
-# @staticmethod
-# @api.doc(security='basicAuth')
-# @user_api.response(200, "Success", comment_model)
-# @user_api.response(401, "You must be logged in", message_model)
-# @user_api.response(403, "You do not have access to this comment", message_model)
-# @user_api.response(404, "Not found photo with this ID", message_model)
-# @user_api.response(404, "Not found comment with this ID", message_model)
-# def delete(photo_id, comment_id):
-#     pass
+@user_api.route("/photo/<int:photo_id>/comment/<int:comment_id>")
+class CommentID(Resource):
+    @staticmethod
+    @user_api.expect(RequestParser()
+                     .add_argument(name="text", type=str, location="form", required=True)
+                     )
+    @requires_auth
+    @user_api.doc(description="Изменить комментарий| Не доделано")
+    @user_api.response(200, "Success", comment_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You do not have access to this comment", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    @user_api.response(404, "Not found comment with this ID", message_model)
+    def put(photo_id, comment_id):
+        return "Не доделано"
+
+    @staticmethod
+    @user_api.doc(description="Удалить комментарий| Не доделано")
+    @requires_auth
+    @user_api.response(200, "Success", comment_model)
+    @user_api.response(401, "You must be logged in", message_model)
+    @user_api.response(403, "You do not have access to this comment", message_model)
+    @user_api.response(404, "Not found photo with this ID", message_model)
+    @user_api.response(404, "Not found comment with this ID", message_model)
+    def delete(photo_id, comment_id):
+        return "Не доделано"
 
 
 @user_api.route("/theme")
 class Theme(Resource):
-    #     @staticmethod
-    #     @user_api.doc(description="Получить список тем")
-    #     @user_api.response(200, "Success", theme_list_model)
-    #     def get():
-    #         theme_list = dbi.get_theme_list()  # TODO check get_theme_list
-    #         # TODO Форматировать
-    #         return make_response(theme_list, 200)
-    #
+    @staticmethod
+    @user_api.doc(description="Получить список тем")
+    @user_api.response(200, "Success", theme_list_model)
+    def get():
+        theme_list = dbi.get_theme_list()
+
+        # TODO Форматировать
+        return make_response(theme_list, 200)
 
     @staticmethod
     @user_api.doc(description="Создать новую тему")
@@ -764,56 +767,52 @@ class Theme(Resource):
         return make_response({"message": "You cannot create theme"}, 403)
 
 
-# @user_api.route("/theme/<int:theme_id>")
-# @user_api.response(404, "Not found theme with this ID", message_model)
-# class ThemeID(Resource):
-#     @staticmethod
-#     @user_api.doc(description="Получит все доступные фото с темой")
-#     @user_api.response(200, "Success", photo_list_model)
-#     def get(theme_id):
-#         check_theme_exist(theme_id)
-#
-#         auth = request.authorization
-#         viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
-#         photo_list = dbi.get_photos_by_theme(theme_id, viewer_id)
-#         # TODO преобразовать
-#         return make_response(photo_list, 200)
+@user_api.route("/theme/<int:theme_id>")
+@user_api.response(404, "Not found theme with this ID", message_model)
+class ThemeID(Resource):
+    @staticmethod
+    @user_api.doc(description="Получит все доступные фото с темой | Не доделано")
+    @user_api.response(200, "Success", photo_list_model)
+    def get(theme_id):
+        return "Не доделано"
+        # check_theme_exist(theme_id)
+        #
+        # auth = request.authorization
+        # viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+        # photo_list = dbi.get_photos_by_theme(theme_id, viewer_id)
+        # # TODO преобразовать
+        # return make_response(photo_list, 200)
 
-# @staticmethod
-#
-# @requires_auth
-# @user_api.doc(doc=False)
-# @user_api.response(200, "Success", theme_model)
-# @user_api.response(401, "You must be logged in", message_model)
-# @user_api.response(403, "You cannot create theme", message_model)
-# @user_api.response(404, "Not found comment theme this ID", message_model)
-# @user_api.expect(RequestParser()
-#                  .add_argument(name="name", type=str, location="form", required=True)
-#                  )
-# def put(theme_id):
-#     pass
+    @staticmethod
+    @user_api.doc(description="Изменить тему | Не доделано")
+    @requires_auth
+    @user_api.response(200, "Success", theme_model)
+    @user_api.response(403, "You cannot create theme", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="name", type=str, location="form", required=True)
+                     )
+    def put(theme_id):
+        return "Не доделано"
 
-# @staticmethod
-# @api.doc(security='basicAuth')
-# @user_api.doc(doc=False)
-# @user_api.response(200, "Success", message_model)
-# @user_api.response(401, "You must be logged in", message_model)
-# @user_api.response(403, "You cannot delete this theme", message_model)
-# @user_api.response(404, "Not found comment theme this ID", message_model)
-# def delete(theme_id):
-#     pass
+    @staticmethod
+    @user_api.doc(description="Удалить тему | Не доделано")
+    @requires_auth
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(403, "You cannot delete this theme", message_model)
+    def delete(theme_id):
+        return "Не доделано"
 
 
 @user_api.route("/tag")
 class Tag(Resource):
-    #     @staticmethod
-    #     @user_api.doc(description="Получить список тем")
-    #     @user_api.response(200, "Success", tag_list_model)
-    #     def get():
-    #         tag_list = dbi.get_tag_list()  # TODO check get_theme_list
-    #         # TODO Форматировать
-    #         return make_response(tag_list, 200)
-    #
+    @staticmethod
+    @user_api.doc(description="Получить список тем")
+    @user_api.response(200, "Success", tag_list_model)
+    def get():
+        tag_list = dbi.get_tag_list()  # TODO check get_theme_list
+        # TODO Форматировать
+        return make_response(tag_list, 200)
+
     @staticmethod
     @user_api.doc(summary="asd", description="Создать новый тег")
     @requires_auth
@@ -836,41 +835,41 @@ class Tag(Resource):
         return make_response(new_tag, 200)
 
 
-# @user_api.route("/tag/<int:tag_id>")
-# @user_api.response(404, "Not found tag with this ID", message_model)
-# class TagID(Resource):
-#     @staticmethod
-#     @user_api.doc(description="Получит все доступные фото с тегом")
-#     @user_api.response(200, "Success", photo_list_model)
-#     def get(tag_id):
-#         check_tag_exist(tag_id)
-#
-#         auth = request.authorization
-#         viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
-#
-#         photo_list = dbi.get_photos_by_theme(tag_id, viewer_id)
-#         # TODO преобразовать
-#         return make_response(photo_list, 200)
-#
-#
-#     # @staticmethod
-#     # @api.doc(security='basicAuth')
-#     # @user_api.response(200, "Success", tag_model)
-#     # @user_api.response(401, "You must be logged in", message_model)
-#     # @user_api.response(403, "You cannot create theme", message_model)
-#     # @user_api.expect(RequestParser()
-#     #                  .add_argument(name="name", type=str, location="form", required=True)
-#     #                  )
-#     # def put(tag_id):
-#     #     pass
-#     #
-#     # @staticmethod
-#     # @api.doc(security='basicAuth')
-#     # @user_api.response(200, "Success", message_model)
-#     # @user_api.response(401, "You must be logged in", message_model)
-#     # @user_api.response(403, "You cannot delete this theme", message_model)
-#     # def delete(tag_id):
-#     #     pass
+@user_api.route("/tag/<int:tag_id>")
+@user_api.response(404, "Not found tag with this ID", message_model)
+class TagID(Resource):
+    @staticmethod
+    @user_api.doc(description="Получит все доступные фото с тегом| Не доделано")
+    @user_api.response(200, "Success", photo_list_model)
+    def get(tag_id):
+        return "Не доделано"
+        # check_tag_exist(tag_id)
+        #
+        # auth = request.authorization
+        # viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+        #
+        # photo_list = dbi.get_photos_by_theme(tag_id, viewer_id)
+        # # TODO преобразовать
+        # return make_response(photo_list, 200)
+
+    @staticmethod
+    @user_api.doc(description="Изменить тег| Не доделано")
+    @requires_auth
+    @user_api.response(200, "Success", tag_model)
+    @user_api.response(403, "You cannot create theme", message_model)
+    @user_api.expect(RequestParser()
+                     .add_argument(name="name", type=str, location="form", required=True)
+                     )
+    def put(tag_id):
+        return "Не доделано"
+
+    @staticmethod
+    @user_api.doc(description="Удалить тег| Не доделано")
+    @requires_auth
+    @user_api.response(200, "Success", message_model)
+    @user_api.response(403, "You cannot delete this theme", message_model)
+    def delete(tag_id):
+        return "Не доделано"
 
 
 if __name__ == "__main__":
