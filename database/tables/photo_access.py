@@ -8,8 +8,8 @@ class photo_access(Base):
 
     # Table columns
     id = Column(Integer, primary_key=True, autoincrement=True)
-    photo_id = Column(Integer, ForeignKey("photos.id"))
-    user_id = Column(Integer, ForeignKey("users.id"))
+    photo_id = Column(Integer, ForeignKey("photos.id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
 
     def __str__(self):
         return f"Photo_access:<id: {self.id},\tphoto_id: {self.photo_id},\tuser_id: {self.user_id}>"

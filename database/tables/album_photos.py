@@ -7,8 +7,8 @@ class album_photos(Base):
 
     # Table columns
     id = Column(Integer, primary_key=True, autoincrement=True)
-    album_id = Column(Integer, ForeignKey("albums.id"))
-    photo_id = Column(Integer, ForeignKey("photos.id"))
+    album_id = Column(Integer, ForeignKey("albums.id", ondelete="CASCADE"))
+    photo_id = Column(Integer, ForeignKey("photos.id", ondelete="CASCADE"))
 
     def __str__(self):
         return f"album_to_photo:\t<id: {self.id},\talbum_id:{self.album_id},\tphoto_id: {self.photo_id}>"

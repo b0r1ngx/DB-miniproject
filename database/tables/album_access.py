@@ -7,5 +7,5 @@ class album_access(Base):
 
     # Table columns
     id = Column(Integer, primary_key=True, autoincrement=True)
-    album_id = Column(Integer, ForeignKey("albums.id"))
-    user_id = Column(Integer, ForeignKey("users.id"))
+    album_id = Column(Integer, ForeignKey("albums.id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))

@@ -119,36 +119,51 @@ CREATE TABLE albums (
 CREATE TABLE comments (
     id SERIAL PRIMARY KEY,
     photo_id INTEGER NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    user_id INTEGER,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     text TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL
 );
 
-CREATE TABLE _ (
+CREATE TABLE photo_themes (
     id SERIAL PRIMARY KEY,
-    
+    photo_id INTEGER NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+    theme_id INTEGER NOT NULL,
+    FOREIGN KEY (theme_id) REFERENCES themes(id) ON DELETE CASCADE,
 );
 
-CREATE TABLE _ (
+CREATE TABLE photo_tags (
     id SERIAL PRIMARY KEY,
-    
+    photo_id INTEGER NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+    tag_id INTEGER NOT NULL,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
-CREATE TABLE _ (
+CREATE TABLE photo_access (
     id SERIAL PRIMARY KEY,
-    
+    photo_id INTEGER NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE _ (
+CREATE TABLE album_photos (
     id SERIAL PRIMARY KEY,
-    
+    photo_id INTEGER NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+    album_id INTEGER NOT NULL,
+    FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE
 );
 
-CREATE TABLE _ (
+CREATE TABLE album_access (
     id SERIAL PRIMARY KEY,
-    
+    album_id INTEGER NOT NULL,
+    FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 ```
