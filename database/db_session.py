@@ -10,7 +10,6 @@ from constants import db
 Base = declarative_base()
 # interaction with DB
 Session: Session = sessionmaker()
-# session = sessionmaker()
 
 
 def init_database_session() -> None:

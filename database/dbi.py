@@ -96,23 +96,57 @@ def get_photos_by_user_id(owner_id: int, viewer_id: int) -> list[photos]:
     pass
 
 
-def get_photo(photo_id: int, viewer_id: int):
+def get_photo(photo_id: int, viewer_id: int) -> dict:
     """
-    Получить фото, если есть доступ
+    Получить фото, если есть доступ у viewer
     :param photo_id:
     :param viewer_id:
     :return: dict: {
-                "id": owner.id,
-                "full_name": owner.full_name,
-                "email": owner.email,
+                "id": photo.id,
+                "user_id": photo.user_id,
+                "url": photo.url,
+                "description": _,
+                "theme_list":,
+                "tags_list":
+                "comment_list":,
                 "date": owner.created_at,
-                "photos": list[of owner.photos that acccess to viewer]  # TODO get photos that you have access to
-            }
+            } / None
     """
     with Session() as s:
         stmt = f'''SELECT * FROM photos
-                   LEFT JOIN photo_access pa USING ()'''
-    pass
+                   WHERE photos.id = {photo_id}'''
+        photo = s.execute(stmt)
+        for i in photo:
+            photo = i
+
+        if photo.private:
+            stmt = f'''SELECT * FROM (
+                            SELECT user_id FROM photo_access
+                            WHERE photo_access.photo_id = {photo_id}
+                       ) as paui
+                       WHERE paui.user_id = {viewer_id}'''
+            access = s.execute(stmt)
+            for i in access:
+                if not i[0]:
+                    return None
+
+        # example in SQL for theme:
+        # SELECT * FROM photo_themes
+        # WHERE photo_themes.photo_id = {photo_id}
+        theme_list = s.query(photo_themes).filter(photo_themes.photo_id == photo_id).all()
+        tag_list = s.query(photo_tags).filter(photo_tags.photo_id == photo_id).all()
+        comment_list = s.query(comments).filter(comments.photo_id == photo_id).all()
+
+        return {
+                "id": photo.id,
+                "user_id": photo.user_id,
+                "url": photo.url,
+                "description": photo.description,
+                "theme_list": theme_list,
+                "tag_list": tag_list,
+                "comment_list": comment_list,
+                "created_at": photo.created_at,
+        }
 
 
 def do_user_have_access_to_other_user_photos(owner_id: int, viewer_id: int) -> dict:

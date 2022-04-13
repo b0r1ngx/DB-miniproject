@@ -34,9 +34,8 @@ if __name__ == "__main__":
     # print(type(create_tag("qwerty11")))
     # print(get_tag_list())
     # print(albums_exist([1]))
-    print(registration("Privet", "a@a@mail.ru", "priveta"))
-    # print(select_all_from(users))
-    # print(select_all_from(photos))
+    # print(registration("Privet", "a@a@mail.ru", "priveta"))
+
     # print(delete_user(1))
     # print(get_users_photos(1, 3))
     # print(delete_photo(2769))
@@ -77,7 +76,9 @@ if __name__ == "__main__":
     #
     #     print(get_users_photos(2, 9))
     #     input("press Enter")
-
+    # print(select_all_from(users))
+    # print(select_all_from(photos))
+    print(get_photo(10000, 100))
     # print(get_user_info(3))
 
 
