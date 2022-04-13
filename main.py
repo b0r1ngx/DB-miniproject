@@ -609,7 +609,7 @@ class PhotoID(Resource):
         owner_id = dbi.get_user_id_by_photo_id(photo_id)
 
         if viewer_id == owner_id or viewer_is_admin:
-            dbi.delete_photo(photo_id)  # TODO check delete_album
+            dbi.delete_photo(photo_id)
             return make_response({"message": "Success"}, 200)
 
         return make_response({"message": "You cannot delete this photo"}, 404)
