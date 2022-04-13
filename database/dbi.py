@@ -130,14 +130,22 @@ def is_user_exist(user_id: int) -> bool:
     return False
 
 
-def is_comment_exist(photo_id, comment_id):
-    """
-
+def is_comment_exist(photo_id: int, comment_id: int) -> bool:
+    """Существует ли комментарий к фото?
     :param photo_id:
     :param comment_id:
     :return:
     """
-    pass
+    with Session() as s:
+        stmt = f'''SELECT * FROM comments
+                   WHERE comments.photo_id = {photo_id}
+                   AND comments.id = {comment_id}'''
+        exists = s.execute(stmt)
+    for i in exists:
+        if i[0]:
+            return True
+    return False
+
 
 def is_admin(user_id: int) -> bool:
     """ +
