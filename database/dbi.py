@@ -11,6 +11,7 @@ from database.tables.album_photos import album_photos
 from database.tables.photo_themes import photo_themes
 from database.tables.photo_access import photo_access
 from database.tables.comments import comments
+from helpers import encode_password
 
 from sqlalchemy import insert
 from psycopg2.errors import *
@@ -41,6 +42,7 @@ def login(email: str, password: str) -> int:
               0 - means this email and password don't;
               id - id from users table
     """
+    password = encode_password(password)
     with Session() as s:
         stmt = f'''SELECT u.id FROM (
                         SELECT * FROM users
@@ -77,7 +79,7 @@ def registration(full_name, email, password) -> bool:
     """
     s = Session()
     try:
-        s.add(users(full_name=full_name, email=email, password=password))
+        s.add(users(full_name=full_name, email=email, password=encode_password(password)))
         s.commit()
     except BaseException as e:
         return False
@@ -280,6 +282,7 @@ def change_user(user_id: int, full_name: str = None, email: str = None, password
     if full_name:
         set.append(f"full_name = '{full_name}'")
     if password:
+        password = encode_password(password)
         set.append(f"password = '{password}'")
     if email:
         set.append(f"email = '{email}'")
@@ -713,9 +716,7 @@ def create_theme(name):
 
 
 def get_photos_by_tag(tag_id, viewer_id):
-    """
-    Получить все фото, у которых есть тег tag_id
-    и которые доступны viewer_id
+    """Получить все фото (public), у которых есть тег tag_id
     :param tag_id:
     :param viewer_id:
     :return:
@@ -724,9 +725,7 @@ def get_photos_by_tag(tag_id, viewer_id):
 
 
 def get_photos_by_theme(theme_id, viewer_id):
-    """
-    Получить все фото, у которых есть тема theme_id
-    и которые доступны viewer_id
+    """Получить все фото (pulbic), у которых есть тема theme_id
     :param viewer_id:
     :param theme_id:
     :return:
