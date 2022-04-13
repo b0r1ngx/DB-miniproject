@@ -561,19 +561,17 @@ class UploadFile(Resource):
 @user_api.response(404, "Not found photo with this ID", message_model)
 class PhotoID(Resource):
     @staticmethod
-    @user_api.doc(description="Получить полную информацию о фото | Не доделано")
+    @user_api.doc(description="Получить полную информацию о фото")
     @user_api.response(200, "Success", photo_model)
     def get(photo_id):
-        return "Не доделано"
-        # if not check_photo_exist(photo_id):
-        #     return make_response({"message": "Not found photo with this ID"}, 404)
-        #
-        # auth = request.authorization
-        # viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
-        #
-        # photo = dbi.get_photo(photo_id, viewer_id)
-        # # TODO преобразовать к нужному формату
-        # return make_response(photo, 200)
+        if not check_photo_exist(photo_id):
+            return make_response({"message": "Not found photo with this ID"}, 404)
+
+        auth = request.authorization
+        viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+
+        photo = dbi.get_photo(photo_id, viewer_id)
+        return make_response(photo, 200)
 
     @staticmethod
     @user_api.doc(description="Изменить информацию о фото| Не доделано")
