@@ -372,6 +372,15 @@ Base.metadata.create_all(engine)
 
 * Session().add(users(full_name, email, password))
 
+
+## Эксперимент с кэшированием
+
+в SQLalchemy мы можем настраивать размер кеша через query_cache_size.  
+Проверим время выполнения некоторых функций с кэшированием и без.
+
+![test](images/performance_test.png)
+
+
 ## Выводы
 В ходе работы:
 

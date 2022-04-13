@@ -328,7 +328,7 @@ def get_albums_by_user_id(owner_id: int, viewer_id: int):
         result = []
         for row in all:
             result.append({
-                "id": row.user_id,
+                "id": row.id,
                 "name": row.name,
                 "description": row.description
             })

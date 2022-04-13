@@ -546,8 +546,13 @@ class PhotoID(Resource):
         auth = request.authorization
         viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
 
+        viewer_is_admin = dbi.is_admin(viewer_id)
         photo = dbi.get_photo(photo_id, viewer_id)
-        return make_response(photo, 200)
+        owner_id = dbi.get_user_id_by_photo_id(photo_id)
+        if viewer_id == owner_id or viewer_is_admin:
+            if photo:
+                return make_response(photo, 200)
+        return make_response({"message":"Нет доступа"}, 403)
 
     @staticmethod
     @user_api.doc(description="Изменить информацию о фото")

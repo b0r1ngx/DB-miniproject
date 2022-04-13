@@ -12,3 +12,7 @@ def email_is_valid(email: str) -> bool:
 
 def encode_password(password: str) -> str:
     return sha3_512(password.encode()).hexdigest()
+
+
+def decode_password(hash: str) -> str:
+    return sha3_512(hash.encode()).hexdigest()

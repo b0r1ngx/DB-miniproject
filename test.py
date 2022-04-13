@@ -95,11 +95,15 @@ if __name__ == "__main__":
     # email = 'perkeboring@gmail.com'
     # print(registration('Kirill Ivanov', email, 'privetiki3'))
     # print(login(email, 'privetiki3'))
-    # with Session() as s:
-    #     user = s.query(users).filter(users.email == email)
+    with Session() as s:
+    #     # user = s.query(users).filter(users.email == email)
+        password = encode_password("12345")
+        s.add(users(full_name="Ilya Tsaplin", email="mail", password=password, is_admin=True))
+        s.commit()
     # print(user.first().password)
     # print(get_user_info(3))
+    # print(get_photos_by_theme(4))
 
-    print(get_photos_by_theme(4))
+    print(encode_password("qwe"))
 
 
