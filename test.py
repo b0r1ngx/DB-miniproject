@@ -35,15 +35,17 @@ if __name__ == "__main__":
     # print(get_tag_list())
     # print(albums_exist([1]))
     print(registration("Privet", "a@a@mail.ru", "priveta"))
-    print(select_all_from(users))
-    print(select_all_from(photos))
-    print(get_users_photos(199, 3))
-    with Session() as s:
-        photo_theme = s.query(photo_themes).filter(photo_themes.photo_id == 183).all()
+    # print(select_all_from(users))
+    # print(select_all_from(photos))
+    # print(delete_user(1))
+    # print(get_users_photos(1, 3))
+    # print(delete_photo(2769))
+    # print(get_users_photos(1, 3))
 
-    print(photo_theme)
-    print(delete_photo(1))
-
+    # with Session() as s:
+    #     photo_theme = s.query(photo_themes).filter(photo_themes.photo_id == 183).all()
+    #
+    # print(photo_theme)
 
     # while True:
     #     print("------themes----------------------------------------")

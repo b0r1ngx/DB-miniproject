@@ -151,9 +151,10 @@ def delete_user(user_id) -> bool:
     with Session() as s:
         deletion = s.query(users).filter(users.id == user_id).delete()
         s.commit()
-    for i in deletion:
-        print(i)
-    return True
+    if deletion:
+        return True
+    else:
+        return False
 
 
 def delete_album(album_id) -> bool:
@@ -732,9 +733,8 @@ def add_user_to_photo_access(photo_id, accesser_id):
         return rows[0].id
 
 
-def delete_user_to_photo_access(photo_id, accesser_id):
-    """+
-    Удалить пользователя из списка если был
+def delete_user_to_photo_access(photo_id: int, accesser_id: int) -> bool:
+    """Удалить пользователя из списка если был
     :param photo_id:
     :param accesser_id:
     :return: True - success
