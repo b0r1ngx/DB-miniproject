@@ -743,7 +743,7 @@ class CommentID(Resource):
     @user_api.response(404, "Not found photo with this ID", message_model)
     @user_api.response(404, "Not found comment with this ID", message_model)
     def delete(photo_id, comment_id):
-        if check_
+        # if check_
         return "Не доделано"
 
 
