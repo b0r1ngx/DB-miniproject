@@ -130,6 +130,15 @@ def is_user_exist(user_id: int) -> bool:
     return False
 
 
+def is_comment_exist(photo_id, comment_id):
+    """
+
+    :param photo_id:
+    :param comment_id:
+    :return:
+    """
+    pass
+
 def is_admin(user_id: int) -> bool:
     """ +
     :param user_id: ,
@@ -849,7 +858,7 @@ def get_users_photos(owner_id, viewer_id) -> list:
         )
 
         private_with_acc = private.join(user_access)
-        # print(private_with_acc)
+        print(private_with_acc)
         private_list = private_with_acc.all()
         result = []
         for row in private_list:
