@@ -137,7 +137,7 @@ curl -X 'GET' \
     - PUT		|Изменить информацию о теге-
     - DELETE	|Удалить тег-
 
-## (Язык SQL DDL)
+## Язык SQL DDL
 
 ### Создание БД
 
@@ -334,10 +334,13 @@ Base.metadata.create_all(engine)
 #### Взаимодействие с БД, при помощи Session()
 
 Чтобы, выполнить запрос к Базе Данных, через ORM, можно воспользоваться двумя видами обращений:
+(пример на добавление данных в указанную таблицу)
 * INSERT INTO users (full_name, email, password)\
   VALUES ('{full_name}', '{email}', '{password}')
 
-* Session().add(users(full_name, email, password))
+* Session().add(users(full_name=full_name, email=email, password=password))
+
+## Язык SQL DML
 
 ## Выводы
 В ходе работы:
