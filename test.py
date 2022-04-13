@@ -79,20 +79,23 @@ if __name__ == "__main__":
     # print(select_all_from(users))
     # print(select_all_from(photos))
     # print(select_all_from(photo_access))
-    with Session() as s:
-        photo_theme = s.query(photo_access).filter(photo_access.photo_id == 1).all()
+    # with Session() as s:
+    #     photo_theme = s.query(photo_access).filter(photo_access.photo_id == 1).all()
+    #
+    # print(photo_theme)
+    # print(get_photo(1, 79))
+    # print(get_photo(1, 100))
+    # print(get_photo(1, 86))
 
-    print(photo_theme)
-    print(get_photo(1, 79))
-    print(get_photo(1, 100))
-    print(get_photo(1, 86))
-
-    email = 'perkeboring@gmail.com'
-    print(registration('Kirill Ivanov', email, 'privetiki3'))
-    print(login(email, 'privetiki3'))
-    with Session() as s:
-        user = s.query(users).filter(users.email == email)
-    print(user.first().password)
+    # password crypt check
+    # email = 'perkeboring@gmail.com'
+    # print(registration('Kirill Ivanov', email, 'privetiki3'))
+    # print(login(email, 'privetiki3'))
+    # with Session() as s:
+    #     user = s.query(users).filter(users.email == email)
+    # print(user.first().password)
     # print(get_user_info(3))
+
+    print(get_photos_by_theme(4))
 
 

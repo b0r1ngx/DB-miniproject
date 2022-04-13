@@ -1,5 +1,5 @@
-import re
 from hashlib import sha3_512
+import re
 
 EMAIL_PATTERN = re.compile('^[A-Za-z0-9.+_-]+@[A-Za-z0-9._-]+\.[a-zA-Z]*$')
 

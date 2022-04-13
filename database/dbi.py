@@ -402,8 +402,7 @@ def get_album(album_id):
 
 
 def change_album(album_id, name=None, description=None):
-    """
-    Изменить альбом с указанным album_id
+    """Изменить альбом с указанным album_id
     :param album_id:
     :param name:
     :param description:
@@ -715,21 +714,32 @@ def create_theme(name):
     return None
 
 
-def get_photos_by_tag(tag_id, viewer_id):
+def get_photos_by_theme(theme_id: int) -> list:
+    """Получить все фото (public), у которых есть тема theme_id
+    :param theme_id:
+    #:param viewer_id:
+    :return:
+    """
+    with Session() as s:
+        photo_list = s.query(photo_themes.photo_id).filter(photo_themes.theme_id == theme_id).all()
+    r = []
+    for photo in photo_list:
+        r.append(photo[0])
+    return r
+
+
+def get_photos_by_tag(tag_id: int) -> int:
     """Получить все фото (public), у которых есть тег tag_id
     :param tag_id:
-    :param viewer_id:
+    #:param viewer_id:
     :return:
     """
-    pass
-
-
-def get_photos_by_theme(theme_id, viewer_id):
-    """Получить все фото (pulbic), у которых есть тема theme_id
-    :param viewer_id:
-    :param theme_id:
-    :return:
-    """
+    with Session() as s:
+        photo_list = s.query(photo_tags.photo_id).filter(photo_tags.tag_id == tag_id).all()
+    r = []
+    for photo in photo_list:
+        r.append(photo[0])
+    return r
 
 
 def get_tag_list():
