@@ -117,16 +117,6 @@ def get_photo(photo_id: int, viewer_id: int) -> dict:
         for i in photo:
             photo = i
 
-        if photo.private:
-            stmt = f'''SELECT * FROM (
-                            SELECT user_id FROM photo_access
-                            WHERE photo_access.photo_id = {photo_id}
-                       ) as paui
-                       WHERE paui.user_id = {viewer_id}'''
-            access = s.execute(stmt)
-            if not access.first():
-                return None
-
         # example in SQL for theme:
         # SELECT * FROM photo_themes
         # WHERE photo_themes.photo_id = {photo_id}
@@ -142,6 +132,28 @@ def get_photo(photo_id: int, viewer_id: int) -> dict:
         comment_list_formated = []
         for row in comment_list:
             comment_list_formated.append(row.id)
+
+        if photo.user_id == viewer_id:
+            return {
+            "id": photo.id,
+            "user_id": photo.user_id,
+            "url": photo.url,
+            "description": photo.description,
+            "theme_list": theme_list_formated,
+            "tag_list": tag_list_formated,
+            "comment_list": comment_list_formated,
+            "created_at": photo.created_at,
+        }
+
+        if photo.private:
+            stmt = f'''SELECT * FROM (
+                            SELECT user_id FROM photo_access
+                            WHERE photo_access.photo_id = {photo_id}
+                       ) as paui
+                       WHERE paui.user_id = {viewer_id}'''
+            access = s.execute(stmt)
+            if not access.first():
+                return None
 
         return {
             "id": photo.id,
