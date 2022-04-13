@@ -135,17 +135,26 @@ def get_photo(photo_id: int, viewer_id: int) -> dict:
         # SELECT * FROM photo_themes
         # WHERE photo_themes.photo_id = {photo_id}
         theme_list = s.query(photo_themes).filter(photo_themes.photo_id == photo_id).all()
+        theme_list_formated = []
+        for row in theme_list:
+            theme_list_formated.append(row.id)
         tag_list = s.query(photo_tags).filter(photo_tags.photo_id == photo_id).all()
+        tag_list_formated = []
+        for row in tag_list:
+            tag_list_formated.append(row.id)
         comment_list = s.query(comments).filter(comments.photo_id == photo_id).all()
+        comment_list_formated = []
+        for row in comment_list:
+            comment_list_formated.append(row.id)
 
         return {
             "id": photo.id,
             "user_id": photo.user_id,
             "url": photo.url,
             "description": photo.description,
-            "theme_list": theme_list,
-            "tag_list": tag_list,
-            "comment_list": comment_list,
+            "theme_list": theme_list_formated,
+            "tag_list": tag_list_formated,
+            "comment_list": comment_list_formated,
             "created_at": photo.created_at,
         }
 
@@ -953,3 +962,11 @@ def get_user_info(user_id):
         if user:
             return user[0]
         return None
+
+
+def update_comment(coment_id, text):
+    pass
+
+def update_photo(description=None, private=None):
+    pass
+

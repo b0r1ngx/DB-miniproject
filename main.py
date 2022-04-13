@@ -403,7 +403,7 @@ class UserAlbumID(Resource):
         return make_response({"message": "You cannot get this album"}, 403)
 
     @staticmethod
-    @user_api.doc(description="Изменить информацию о альбоме|Не доделано")
+    @user_api.doc(description="Изменить информацию о альбоме")
     @requires_auth
     @user_api.response(200, "Success", message_model)
     @user_api.response(400, "Invalid request", message_model)
@@ -413,28 +413,28 @@ class UserAlbumID(Resource):
                      .add_argument(name="description", type=str, location="form")
                      )
     def put(user_id, album_id):
-        return "123"
-        # if not check_user_exist(user_id):
-        #     make_response({"message": "User with this id not found"}, 404)
-        # check_album_exist(user_id, album_id)
-        #
-        # viewer_id = dbi.get_user_id(request.authorization.username)
-        # viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
-        #
-        # f = request.form
-        # if not ("full_name" in f or "email" in f or "password" in f):
-        #     return make_response({"message": "Invalid request"}, 400)
-        # name = None if "name" not in f else f["name"]
-        # description = None if "description" not in f else f["description"]
-        #
-        # if viewer_id == user_id or viewer_is_admin:
-        #     dbi.change_album(album_id,
-        #                      name=name,
-        #                      description=description
-        #                      )  # TODO check change_album
-        #     return make_response({"message": "Success"}, 200)
-        #
-        # return make_response({"message": "You cannot update this album"}, 403)
+        if not check_user_exist(user_id):
+            make_response({"message": "User with this id not found"}, 404)
+        if not check_album_exist(user_id, album_id):
+            return make_response({"message": "Album with this id not found"}, 404)
+
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        f = request.form
+        if not ("full_name" in f or "email" in f or "password" in f):
+            return make_response({"message": "Invalid request"}, 400)
+        name = None if "name" not in f else f["name"]
+        description = None if "description" not in f else f["description"]
+
+        if viewer_id == user_id or viewer_is_admin:
+            dbi.change_album(album_id,
+                             name=name,
+                             description=description
+                             )
+            return make_response({"message": "Success"}, 200)
+
+        return make_response({"message": "You cannot update this album"}, 403)
 
     @staticmethod
     @user_api.doc(description="Удалить альбом")
@@ -573,17 +573,15 @@ class PhotoID(Resource):
     @user_api.response(403, "You cannot update this photo", message_model)
     @user_api.expect(RequestParser()
                      .add_argument(name="description", type=str, location="form")
-                     .add_argument(name="albums", type=int, location="form", action="append")
-                     .add_argument(name="tags", type=int, location="form", action="append")
-                     .add_argument(name="themes", type=int, location="form", action="append")
                      .add_argument(name="private or no", type=bool, location="form")
                      )
     def put(photo_id):
-        return "Не доделано"
+        return "не доделано"
         # if not check_photo_exist(photo_id):
         #     return make_response({"message": "Not found photo with this ID"}, 404)
         # f = request.form
         # albums = f.getlist()
+        # dbi.change_photo
         # print(123)
         # pass
 
@@ -688,7 +686,7 @@ class Comment(Resource):
     @user_api.expect(RequestParser()
                      .add_argument(name="text", type=str, location="form", required=True)
                      )
-    def post(photo_id):  # TODO протестить
+    def post(photo_id):
         if not check_photo_exist(photo_id):
             return make_response({"message": "Not found photo with this ID"}, 404)
 
@@ -719,9 +717,9 @@ class CommentID(Resource):
     @requires_auth
     @user_api.doc(description="Изменить комментарий| Не доделано")
     @user_api.response(200, "Success", comment_model)
-    @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You do not have access to this comment", message_model)
     def put(photo_id, comment_id):
+        # dbi.update_comment(coment_id, text)
         return "Не доделано"
 
     @staticmethod
