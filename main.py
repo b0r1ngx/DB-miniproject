@@ -241,7 +241,7 @@ class User(Resource):
         return make_response(result, 200)
 
     @staticmethod
-    @user_api.doc(description="Удалить пользователя| Не сделано", summary="some")
+    @user_api.doc(description="Удалить пользователя", summary="some")
     # @user_api.doc(deprecated=True)
     @requires_auth
     @user_api.response(200, "Success", message_model)
@@ -496,7 +496,7 @@ class Photo(Resource):
                      )
     def post():
         viewer_id = dbi.get_user_id(request.authorization.username)
-        viewer_is_admin = dbi.is_admin(viewer_id)  # TODO check is_admin
+        viewer_is_admin = dbi.is_admin(viewer_id)
 
         f = request.form
         description = None if "description" not in f else f["description"]
@@ -595,12 +595,24 @@ class PhotoID(Resource):
         # pass
 
     @staticmethod
-    @user_api.doc(description="Удалить фото |Не доделано")
+    @user_api.doc(description="Удалить фото")
     @requires_auth
     @user_api.response(200, "Success", message_model)
     @user_api.response(403, "You cannot delete this photo", message_model)
     def delete(photo_id):
-        return "Не доделано"  # TODO сделать как будет готово dbi.delete_photo
+        if not check_photo_exist(photo_id):
+            return make_response({"message": "Not found photo with this ID"}, 404)
+
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        owner_id = dbi.get_user_id_by_photo_id(photo_id)
+
+        if viewer_id == owner_id or viewer_is_admin:
+            dbi.delete_photo(photo_id)  # TODO check delete_album
+            return make_response({"message": "Success"}, 200)
+
+        return make_response({"message": "You cannot delete this photo"}, 404)
 
 
 @user_api.route("/photo/<int:photo_id>/accessList")
