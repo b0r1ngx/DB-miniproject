@@ -96,6 +96,25 @@ def get_photos_by_user_id(owner_id: int, viewer_id: int) -> list[photos]:
     pass
 
 
+def get_photo(photo_id: int, viewer_id: int):
+    """
+    Получить фото, если есть доступ
+    :param photo_id:
+    :param viewer_id:
+    :return: dict: {
+                "id": owner.id,
+                "full_name": owner.full_name,
+                "email": owner.email,
+                "date": owner.created_at,
+                "photos": list[of owner.photos that acccess to viewer]  # TODO get photos that you have access to
+            }
+    """
+    with Session() as s:
+        stmt = f'''SELECT * FROM photos
+                   LEFT JOIN photo_access pa USING ()'''
+    pass
+
+
 def do_user_have_access_to_other_user_photos(owner_id: int, viewer_id: int) -> dict:
     """What photos can viewer see at owner (someone)
 
@@ -506,19 +525,6 @@ def themes_exist(theme_list: list[int]) -> bool:
         if i[0] != size:
             return False
     return True
-
-
-def get_photo(photo_id: int, viewer_id: int):
-    """
-    Получить фото, если есть доступ
-    :param photo_id:
-    :param viewer_id:
-    :return:
-    """
-    with Session() as s:
-        stmt = f'''SELECT * FROM photos
-                   LEFT JOIN photo_access pa USING ()'''
-    pass
 
 
 def is_photo_exist(photo_id):
