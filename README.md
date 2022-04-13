@@ -260,6 +260,40 @@ height INTEGER NOT NULL,
 place TEXT NOT NULL
 ```
 
+## SQL DML
+Мы использовали ORM SQLalchemy, поэтому в явном виде сложные запросы 
+в проекте отсутствуют, однако средствами SQLalchemy можно конвертировать
+запросы из "ORM-ного" вида в SQL.
+
+Пример:
+```Python 
+public = s.query(photos).filter(
+    photos.private == False,
+    photos.user_id == owner_id
+)
+private = s.query(photos).filter(
+    photos.private == True,
+    photos.user_id == owner_id
+)
+user_access = s.query(photo_access).filter(
+    photo_access.user_id == viewer_id
+)
+
+private_with_acc = private.join(user_access)
+```
+
+
+```SQL
+print(private_with_acc)
+
+SELECT photos.id AS photos_id, photos.user_id AS photos_user_id, photos.url AS photos_url, photos.description AS photos_description, photos.private AS photos_private, photos.created_at AS photos_created_at 
+FROM photos JOIN (SELECT photo_access.id AS photo_access_id, photo_access.photo_id AS photo_access_photo_id, photo_access.user_id AS photo_access_user_id 
+FROM photo_access 
+WHERE photo_access.user_id = %(user_id_1)s) AS anon_1 ON photos.id = anon_1.photo_access_photo_id 
+WHERE photos.private = true AND photos.user_id = %(user_id_2)s
+```
+
+
 ### Наполнение БД данными (и генерация)
 В файле `generator.py`  запустив `if __name__ == "__main__":`, можно сгенерировать данные для работы с БД, 
 также постарались сделать хоть каким-то образом читаемый вывод из таблиц.
