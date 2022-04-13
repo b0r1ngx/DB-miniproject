@@ -21,8 +21,6 @@ from sqlalchemy.exc import *
 def select_all_from(table) -> list:
     with Session() as s:
         table_list = s.query(table).all()
-    # with session as s:
-    #     user_list = s.query(table).all()
     return table_list
 
 
@@ -135,15 +133,15 @@ def get_photo(photo_id: int, viewer_id: int) -> dict:
 
         if photo.user_id == viewer_id:
             return {
-            "id": photo.id,
-            "user_id": photo.user_id,
-            "url": photo.url,
-            "description": photo.description,
-            "theme_list": theme_list_formated,
-            "tag_list": tag_list_formated,
-            "comment_list": comment_list_formated,
-            "created_at": photo.created_at,
-        }
+                "id": photo.id,
+                "user_id": photo.user_id,
+                "url": photo.url,
+                "description": photo.description,
+                "theme_list": theme_list_formated,
+                "tag_list": tag_list_formated,
+                "comment_list": comment_list_formated,
+                "created_at": photo.created_at,
+            }
 
         if photo.private:
             stmt = f'''SELECT * FROM (
@@ -936,7 +934,6 @@ def get_users_photos(owner_id, viewer_id) -> list:
         )
 
         private_with_acc = private.join(user_access)
-        print(private_with_acc)
         private_list = private_with_acc.all()
         result = []
         for row in private_list:
@@ -994,4 +991,3 @@ def update_photo(photo_id: int, description: str = None, private: bool = None) -
         s.execute(stmt)
         s.commit()
     return True
-

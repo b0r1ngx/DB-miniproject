@@ -17,7 +17,8 @@ def init_database_session() -> None:
     Method must be called firstly, if Application want to interact with DB, when calling Session().
     :return: None
     """
-    engine = create_engine(url=db, echo=False, pool_size=10, max_overflow=0, poolclass=QueuePool, pool_pre_ping=True)
+    engine = create_engine(url=db, echo=False, pool_size=10, max_overflow=0,
+                           poolclass=QueuePool, pool_pre_ping=True, query_cache_size=0) # 20000
 
     print('Подключение к базе данных')
     # session.configure(bind=engine)

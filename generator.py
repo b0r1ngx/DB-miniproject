@@ -96,7 +96,7 @@ def generate_tags(t: list = None) -> None:
         s.commit()
 
 
-def generate_photos(amount: int = 10000) -> None:
+def generate_photos(amount: int = 10000, user_id: int = None) -> None:
     if amount <= 0:
         return
 
@@ -106,14 +106,24 @@ def generate_photos(amount: int = 10000) -> None:
     amount_of_users = len(user_list)
 
     photo_list: list[dict] = []
-    for i in range(amount):
-        photo = {
-            'user_id': randint(1, amount_of_users),
-            'url': '/upload/' + random_seq(64) + '.png',
-            'description': random_seq(100),
-            'private': choice([False, False, True])
-        }
-        photo_list.append(photo)
+    if user_id:
+        for i in range(amount):
+            photo = {
+                'user_id': user_id,
+                'url': '/upload/' + random_seq(32) + str(i) + random_seq(32) + '.png',
+                'description': random_seq(100),
+                'private': choice([False, False, True])
+            }
+            photo_list.append(photo)
+    else:
+        for i in range(amount):
+            photo = {
+                'user_id': randint(1, amount_of_users),
+                'url': '/upload/' + random_seq(32) + str(i) + random_seq(32) + '.png',
+                'description': random_seq(100),
+                'private': choice([False, False, True])
+            }
+            photo_list.append(photo)
 
     photo_list = list(map(lambda p: photos(**p), photo_list))
     with Session() as s:
@@ -161,7 +171,7 @@ def generate_photo_to_tags() -> None:
         s.commit()
 
 
-def generate_photo_access() -> None:
+def generate_photo_access(user_id: int = None) -> None:
     # get users 'n photos
     with Session() as s:
         user_list = s.query(users).all()
@@ -169,21 +179,31 @@ def generate_photo_access() -> None:
 
         # associate it in table
         photo_access_list: list[dict] = []
-        for photo in photo_list:
-            # just simple, may generate access to user that own this photo
-            pa = {
-                'photo_id': photo.id,
-                'user_id': choice(user_list).id
-            }
-            photo_access_list.append(pa)
+        if user_id:
+            for photo in photo_list:
+                # just simple, may generate access to user that own this photo
+                pa = {
+                    'photo_id': photo.id,
+                    'user_id': user_id
+                }
+                photo_access_list.append(pa)
+        else:
+            for photo in photo_list:
+                # just simple, may generate access to user that own this photo
+                pa = {
+                    'photo_id': photo.id,
+                    'user_id': choice(user_list).id
+                }
+                photo_access_list.append(pa)
 
         photo_access_list = list(map(lambda pa: photo_access(**pa), photo_access_list))
         s.bulk_save_objects(photo_access_list)
         s.commit()
 
 
-def generate_comments(amount: int = 100, max_comments_per_photo: int = 10) -> None:
+def generate_comments(amount: int = 100, max_comments_per_photo: int = 10, photo_id: int = None) -> None:
     """Also users is messaging at some alien language ~._.~
+    :param photo_id:
     :param max_comments_per_photo:
     :param amount:
     :return:
@@ -197,14 +217,23 @@ def generate_comments(amount: int = 100, max_comments_per_photo: int = 10) -> No
         photo_list = s.query(photos).all()
 
     comment_list: list[dict] = []
-    for photo in photo_list:
-        for i in range(randint(1, max_comments_per_photo)):
+    if photo_id:
+        for j in range(amount):
             comment = {
-                'photo_id': photo.id,
+                'photo_id': photo_id,
                 'user_id': choice(user_list).id,
                 'text': random_seq(100)
             }
             comment_list.append(comment)
+    else:
+        for photo in photo_list:
+            for i in range(randint(1, max_comments_per_photo)):
+                comment = {
+                    'photo_id': photo.id,
+                    'user_id': choice(user_list).id,
+                    'text': random_seq(100)
+                }
+                comment_list.append(comment)
 
     comment_list = list(map(lambda c: comments(**c), comment_list))
     with Session() as s:
@@ -303,14 +332,14 @@ if __name__ == "__main__":
     generate_album_access()
 
     print("Вывожу данные:")
-    print(select_all_from(users))
-    print(select_all_from(themes))
-    print(select_all_from(tags))
-    print(select_all_from(photos))
-    print(select_all_from(photo_themes))
-    print(select_all_from(photo_tags))
-    print(select_all_from(photo_access))
-    print(select_all_from(comments))
-    print(select_all_from(albums))
-    print(select_all_from(album_photos))
-    print(select_all_from(album_access))
+    # print(select_all_from(users))
+    # print(select_all_from(themes))
+    # print(select_all_from(tags))
+    # print(select_all_from(photos))
+    # print(select_all_from(photo_themes))
+    # print(select_all_from(photo_tags))
+    # print(select_all_from(photo_access))
+    # print(select_all_from(comments))
+    # print(select_all_from(albums))
+    # print(select_all_from(album_photos))
+    # print(select_all_from(album_access))
