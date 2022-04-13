@@ -14,6 +14,7 @@ from database.tables.album_photos import album_photos
 from database.tables.photo_themes import photo_themes
 from database.tables.photo_access import photo_access
 from database.tables.comments import comments
+from helpers import encode_password
 
 from string import ascii_lowercase, digits
 from random import choice, choices, randint
@@ -26,7 +27,7 @@ def random_seq(size=10, chars=ascii_lowercase + digits) -> str:
 def random_user(full_name_chars='', email_chars='', pass_chars='') -> dict:
     full_name = random_seq() + ' ' + random_seq()
     email = random_seq(15) + '@gmail.com'
-    password = random_seq(32)
+    password = encode_password(random_seq(32))
     return {
         'full_name': full_name,
         'email': email,
