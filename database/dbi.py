@@ -144,50 +144,58 @@ def is_admin(user_id: int) -> bool:
 
 
 def delete_user(user_id) -> bool:
-    """
-    Удалить пользователя (все его фото, комментарии под фото, альбомы и записи о них)
+    """Удалить пользователя
     :param user_id:
     :return:
     """
     with Session() as s:
-        try:
-            s.query(users).filter(users.id == user_id).delete()
-            s.commit()
-        except:
-            return False
+        deletion = s.query(users).filter(users.id == user_id).delete()
+        s.commit()
+    for i in deletion:
+        print(i)
     return True
 
 
-def delete_album(album_id):
+def delete_album(album_id) -> bool:
     """Удалить альбом
     :param album_id:
     :return:
     """
     with Session() as s:
-        s.query(albums).filter(albums.id == album_id).delete()
+        deletion = s.query(albums).filter(albums.id == album_id).delete()
         s.commit()
+    if deletion:
+        return True
+    else:
+        return False
 
 
-def delete_photo(photo_id):
-    """
-
+def delete_photo(photo_id) -> bool:
+    """Удалить фото
     :param photo_id:
     :return:
     """
     with Session() as s:
-        s.query(photos).filter(photos.id == photo_id).delete()
+        deletion = s.query(photos).filter(photos.id == photo_id).delete()
         s.commit()
+    if deletion:
+        return True
+    else:
+        return False
 
 
 def delete_comment(comment_id):
-    """
-
+    """Удалить комментарий
     :param comment_id:
     :return:
     """
     with Session() as s:
-        s.query(comments).filter(comments.id == comment_id).delete()
+        deletion = s.query(comments).filter(comments.id == comment_id).delete()
         s.commit()
+    if deletion:
+        return True
+    else:
+        return False
 
 
 def change_user(user_id: int, full_name: str = None, email: str = None, password: str = None) -> bool:
@@ -343,15 +351,31 @@ def change_album(album_id, name=None, description=None):
 
 
 def delete_theme(theme_id):
+    """Удалить тему
+    :param theme_id:
+    :return:
+    """
     with Session() as s:
-        s.query(themes).filter(themes.id == theme_id).delete()
+        deletion = s.query(themes).filter(themes.id == theme_id).delete()
         s.commit()
+    if deletion:
+        return True
+    else:
+        return False
 
 
 def delete_tag(tag_id):
+    """Удалить тег
+    :param tag_id:
+    :return:
+    """
     with Session() as s:
-        s.query(tags).filter(tags.id == tag_id).delete()
+        deletion = s.query(tags).filter(tags.id == tag_id).delete()
         s.commit()
+    if deletion:
+        return True
+    else:
+        return False
 
 
 def create_photo(user_id: int, url: str, description: str, album_list: list[int],
@@ -722,8 +746,10 @@ def delete_user_to_photo_access(photo_id, accesser_id):
         ).all()
         if len(rows) > 0:
             s.delete(rows[0])
-        s.commit()
-        return True
+            s.commit()
+            return True
+        else:
+            return False
 
 
 def check_album_list_owner(user_id, album_list):

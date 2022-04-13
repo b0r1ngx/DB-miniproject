@@ -38,8 +38,11 @@ if __name__ == "__main__":
     print(select_all_from(users))
     print(select_all_from(photos))
     print(get_users_photos(199, 3))
-    print(delete_user(199))
-    print(get_users_photos(199, 3))
+    with Session() as s:
+        photo_theme = s.query(photo_themes).filter(photo_themes.photo_id == 183).all()
+
+    print(photo_theme)
+    print(delete_photo(1))
 
 
     # while True:

@@ -288,6 +288,7 @@ if __name__ == "__main__":
     init_database_session()
 
     # after you generate one time, comment these lines please, if you wanna just look at prints
+    print("Генерирую данные:")
     generate_users()
     generate_themes()
     generate_tags()
@@ -300,6 +301,7 @@ if __name__ == "__main__":
     generate_album_photos()
     generate_album_access()
 
+    print("Вывожу данные:")
     print(select_all_from(users))
     print(select_all_from(themes))
     print(select_all_from(tags))

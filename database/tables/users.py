@@ -17,7 +17,8 @@ class users(Base):
 
     # Relations
     albums = orm.relation("albums", backref="users")
-    photos = orm.relationship("photos", backref='users', lazy='dynamic', cascade='all, delete-orphan', passive_deletes = True)
+    # lazy='dynamic', cascade='all, delete-orphan', passive_deletes=True
+    photos = orm.relationship("photos", backref='users')
     comments = orm.relation("comments", backref="users")
     photo_access = orm.relation("photo_access", backref="users")
     album_access = orm.relation("album_access", backref="users")
