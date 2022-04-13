@@ -146,13 +146,12 @@ def check_photo_exist(photo_id):
 
 
 def check_theme_exist(theme_id):
-    if not dbi.is_theme_exist(theme_id):  # TODO check check_photo_exist
-        return make_response({"message": "Not found theme with this ID"}, 404)
+    return dbi.is_theme_exist(theme_id)
 
 
 def check_tag_exist(tag_id):
-    if not dbi.is_tag_exist(tag_id):  # TODO check check_photo_exist
-        return make_response({"message": "Not found tag with this ID"}, 404)
+    return dbi.is_tag_exist(tag_id)
+
 
 
 def allowed_file(filename):
@@ -719,6 +718,8 @@ class Comment(Resource):
 
 
 @user_api.route("/photo/<int:photo_id>/comment/<int:comment_id>")
+@user_api.response(404, "Not found photo with this ID", message_model)
+@user_api.response(404, "Not found comment with this ID", message_model)
 class CommentID(Resource):
     @staticmethod
     @user_api.expect(RequestParser()
@@ -729,22 +730,30 @@ class CommentID(Resource):
     @user_api.response(200, "Success", comment_model)
     @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You do not have access to this comment", message_model)
-    @user_api.response(404, "Not found photo with this ID", message_model)
-    @user_api.response(404, "Not found comment with this ID", message_model)
     def put(photo_id, comment_id):
         return "Не доделано"
 
     @staticmethod
-    @user_api.doc(description="Удалить комментарий| Не доделано")
+    @user_api.doc(description="Удалить комментарий")
     @requires_auth
     @user_api.response(200, "Success", comment_model)
-    @user_api.response(401, "You must be logged in", message_model)
     @user_api.response(403, "You do not have access to this comment", message_model)
-    @user_api.response(404, "Not found photo with this ID", message_model)
-    @user_api.response(404, "Not found comment with this ID", message_model)
     def delete(photo_id, comment_id):
-        # if check_
-        return "Не доделано"
+        if not check_photo_exist(photo_id):
+            return make_response({"message": "Not found photo with this ID"}, 404)
+        if not check_comment_exist(photo_id=photo_id, comment_id=comment_id):
+            return make_response({"message": "Not found comment with this ID"}, 404)
+
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        owner_id = dbi.get_user_id_by_photo_id(photo_id)
+
+        if owner_id == viewer_id or viewer_is_admin:
+            dbi.delete_comment(comment_id)
+            return make_response({"message": "Success"}, 200)
+        return make_response({"message": "You do not have access to this comment"}, 403)
+
 
 
 @user_api.route("/theme")
@@ -820,12 +829,20 @@ class ThemeID(Resource):
         return "Не доделано"
 
     @staticmethod
-    @user_api.doc(description="Удалить тему | Не доделано")
+    @user_api.doc(description="Удалить тему")
     @requires_auth
     @user_api.response(200, "Success", message_model)
     @user_api.response(403, "You cannot delete this theme", message_model)
     def delete(theme_id):
-        return "Не доделано"
+        if not check_theme_exist(theme_id):
+            return make_response({"message": "Not found theme with this ID"}, 404)
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        if viewer_is_admin:
+            dbi.delete_theme()
+            return make_response({"message": "Success"}, 200)
+        return make_response({"message": "You cannot create theme"}, 403)
 
 
 @user_api.route("/tag")
@@ -894,12 +911,21 @@ class TagID(Resource):
         return "Не доделано"
 
     @staticmethod
-    @user_api.doc(description="Удалить тег| Не доделано")
+    @user_api.doc(description="Удалить тег")
     @requires_auth
     @user_api.response(200, "Success", message_model)
     @user_api.response(403, "You cannot delete this theme", message_model)
     def delete(tag_id):
-        return "Не доделано"
+        if not check_tag_exist(tag_id):
+            return make_response({"message": "Not found tag with this ID"}, 404)
+        viewer_id = dbi.get_user_id(request.authorization.username)
+        viewer_is_admin = dbi.is_admin(viewer_id)
+
+        if viewer_is_admin:
+            dbi.delete_tag(tag_id)
+            return make_response({"message": "Success"}, 200)
+
+        return make_response({"message": "You cannot create theme"}, 403)
 
 
 if __name__ == "__main__":
