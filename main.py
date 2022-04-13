@@ -163,8 +163,6 @@ def allowed_file(filename):
 class Login(Resource):
     @staticmethod
     @user_api.doc(description="Залогиниться", security=False)
-    # @user_api.doc(summary="qwerty")
-    # @user_api.
     @user_api.expect(RequestParser()
                      .add_argument(name="email", type=str, location="form", required=True)
                      .add_argument(name="password", type=str, location="form", required=True)
@@ -243,8 +241,7 @@ class User(Resource):
         return make_response(result, 200)
 
     @staticmethod
-    @user_api.doc(description="Удалить пользователя", summary="some")
-    # @user_api.doc(deprecated=True)
+    @user_api.doc(description="Удалить пользователя")
     @requires_auth
     @user_api.response(200, "Success", message_model)
     @user_api.response(403, "You cannot delete users", message_model)
@@ -302,19 +299,17 @@ class User(Resource):
 @user_api.response(404, "User with this id not found", message_model)
 class UserAlbum(Resource):
     @staticmethod
-    @user_api.doc(description="Получить все альбомы пользователя|Не доделано")
+    @user_api.doc(description="Получить все альбомы пользователя")
     @user_api.response(200, "Success", album_list_model)
     def get(user_id):
-        return "Не доделано"
-        # if not check_user_exist(user_id):
-        #     make_response({"message": "User with this id not found"}, 404)
-        #
-        # auth = request.authorization
-        # viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
-        #
-        # album_list = dbi.get_albums_by_user_id(user_id, viewer_id)  # TODO chek get_albums_by_user_id
-        # # TODO преобразовать в нужный формат
-        # return make_response(album_list, 200)
+        if not check_user_exist(user_id):
+            make_response({"message": "User with this id not found"}, 404)
+
+        auth = request.authorization
+        viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+
+        album_list = dbi.get_albums_by_user_id(user_id, viewer_id)  # TODO chek get_albums_by_user_id
+        return make_response({"list": album_list}, 200)
 
     @staticmethod
     @user_api.doc(description="Создать новый альбом для пользователя")
@@ -389,25 +384,23 @@ class UserAlbumID(Resource):
         return make_response({"message": "You cannot add photos into this album"}, 403)
 
     @staticmethod
-    @user_api.doc(description="Получить информацию о альбоме|Не доделано")
+    @user_api.doc(description="Получить информацию о альбоме")
     @user_api.response(200, "Success", album_model)
     @user_api.response(403, "You cannot get this album", message_model)
     def get(user_id, album_id):
-        return "Не доделано"
-        # if not check_user_exist(user_id):
-        #     make_response({"message": "User with this id not found"}, 404)
-        # check_album_exist(user_id, album_id)
-        #
-        # auth = request.authorization
-        # viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
-        #
-        # is_album_access = dbi.get_album_access(viewer_id, album_id)  # TODO check get_album_access
-        # if is_album_access:
-        #     album = dbi.get_album(album_id)  # TODO check get_album
-        #     # TODO преобразовать в нужный формат
-        #     return make_response(album, 200)
-        #
-        # return make_response({"message": "You cannot get this album"}, 403)
+        if not check_user_exist(user_id):
+            make_response({"message": "User with this id not found"}, 404)
+        check_album_exist(user_id, album_id)
+
+        auth = request.authorization
+        viewer_id = 0 if not auth else dbi.get_user_id(request.authorization.username)
+
+        is_album_access = dbi.get_album_access(viewer_id, album_id)
+        if is_album_access:
+            album = dbi.get_album(album_id)
+            return make_response(album, 200)
+
+        return make_response({"message": "You cannot get this album"}, 403)
 
     @staticmethod
     @user_api.doc(description="Изменить информацию о альбоме|Не доделано")
@@ -420,7 +413,7 @@ class UserAlbumID(Resource):
                      .add_argument(name="description", type=str, location="form")
                      )
     def put(user_id, album_id):
-        return "Не доделано"
+        return "123"
         # if not check_user_exist(user_id):
         #     make_response({"message": "User with this id not found"}, 404)
         # check_album_exist(user_id, album_id)

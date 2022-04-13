@@ -139,14 +139,14 @@ def get_photo(photo_id: int, viewer_id: int) -> dict:
         comment_list = s.query(comments).filter(comments.photo_id == photo_id).all()
 
         return {
-                "id": photo.id,
-                "user_id": photo.user_id,
-                "url": photo.url,
-                "description": photo.description,
-                "theme_list": theme_list,
-                "tag_list": tag_list,
-                "comment_list": comment_list,
-                "created_at": photo.created_at,
+            "id": photo.id,
+            "user_id": photo.user_id,
+            "url": photo.url,
+            "description": photo.description,
+            "theme_list": theme_list,
+            "tag_list": tag_list,
+            "comment_list": comment_list,
+            "created_at": photo.created_at,
         }
 
 
@@ -295,24 +295,29 @@ def change_user(user_id: int, full_name: str = None, email: str = None, password
     return True
 
 
-def get_albums_by_user_id(owner_id: int, viewer_id: int) -> list[albums]:
+def get_albums_by_user_id(owner_id: int, viewer_id: int):
     """Получить все альбомы owner'а, которые доступны viewer'у
     :param owner_id:
     :param viewer_id:
-    :return: {
-                "list" : [{
-                        "id": Int,
-                        "name": String,
-                        ...
-                       }]
-            } or maybe just:
-                [{
-                    "id": Int,
-                    "name": String,
-                    ...
-                }]
+    :return:
     """
-    pass
+    with Session() as s:
+        albums_list = s.query(albums).filter(albums.user_id == owner_id)
+        viewer_is_admin = is_admin(viewer_id)
+        if viewer_is_admin:
+            all = albums_list.all()
+        else:
+            users_access = s.query(album_access).filter(album_access.user_id == viewer_id)
+            albums_with_acc = albums_list.join(users_access)
+            all = albums_with_acc.all()
+        result = []
+        for row in all:
+            result.append({
+                "id": row.user_id,
+                "name": row.name,
+                "description": row.description
+            })
+        return result
 
 
 def is_album_name_not_exists(user_id: int, name: str) -> bool:
@@ -393,12 +398,24 @@ def get_album_access(user_id: int, album_id: int) -> bool:
 
 
 def get_album(album_id):
-    """
+    with Session() as s:
+        album = s.query(albums).filter(albums.id == album_id).one()
 
-    :param album_id:
-    :return:
-    """
-    pass
+        photo_album_q = s.query(album_photos).filter(album_photos.album_id == album_id)
+        photo_list = s.query(photos).join(photo_album_q).all()
+
+        photo_list_formated = []
+        for row in photo_list:
+            photo_list_formated.append({
+                "id": row.id,
+                "url": row.url
+            })
+        return {
+            "id": album.id,
+            "name": album.name,
+            "description": album.description,
+            "photo_list": photo_list_formated
+        }
 
 
 def change_album(album_id, name=None, description=None):
