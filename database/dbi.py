@@ -94,10 +94,6 @@ def registration(full_name, email, password) -> bool:
     return True
 
 
-def get_photos_by_user_id(owner_id: int, viewer_id: int) -> list[photos]:
-    pass
-
-
 def get_photo(photo_id: int, viewer_id: int) -> dict:
     """
     Получить фото, если есть доступ у viewer
@@ -602,8 +598,7 @@ def is_photo_exist(photo_id):
 
 
 def get_photo_access_list(photo_id):
-    """+
-    Получить список пользователей, которым доступно фото
+    """Получить список пользователей, которым доступно фото
     :param photo_id:
     :param viewer_id:
     :return:
@@ -614,7 +609,6 @@ def get_photo_access_list(photo_id):
         for row in rows:
             result_list.append(row.user_id)
         return result_list
-    pass
 
 
 def get_user_id_by_photo_id(photo_id):
@@ -630,9 +624,7 @@ def get_user_id_by_photo_id(photo_id):
 
 
 def get_access_to_photo_by_user_id(photo_id, viewer_id):
-    """+
-    Имеет ли пользователь с viewer_id досуп
-    к фото с photo_id&
+    """Имеет ли пользователь с viewer_id доступ к фото с photo_id&
     :param photo_id:
     :param viewer_id:
     :return:
@@ -647,14 +639,6 @@ def get_access_to_photo_by_user_id(photo_id, viewer_id):
         if viewer_id == get_user_id_by_photo_id(photo_id):
             return True
         return False
-        # #  TODO realize add access and resume
-        # print(some)
-
-        # public_images = s.query(photos).filter(photos.private == False).all()
-        # some1
-        # # some = some.join
-        # print(photo)
-    pass
 
 
 def add_comment(commentator_id, photo_id, text):
@@ -980,6 +964,12 @@ def update_comment(comment_id: int, text: str) -> bool:
 
 
 def update_photo(photo_id: int, description: str = None, private: bool = None) -> bool:
+    """Обновить фото
+    :param photo_id:
+    :param description:
+    :param private:
+    :return:
+    """
     set = []
     if description:
         set.append(f"description = '{description}'")
