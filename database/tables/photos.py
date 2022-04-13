@@ -30,7 +30,7 @@ class photos(Base):
     photo_access = orm.relation("photo_access", backref="photos")
 
     def __str__(self):
-        return f"Photo:\t<id: {self.id},\tuser_id:{self.user_id},\turl: {self.url}>"
+        return f"Photo:\t<id: {self.id},\tuser_id:{self.user_id},\turl: {self.url} ,\tis_private {self.private}>"
 
     def __repr__(self):
         return self.__str__()

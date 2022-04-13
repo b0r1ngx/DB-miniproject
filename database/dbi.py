@@ -143,15 +143,19 @@ def is_admin(user_id: int) -> bool:
         return i[0]
 
 
-def delete_user(user_id):
+def delete_user(user_id) -> bool:
     """
     Удалить пользователя (все его фото, комментарии под фото, альбомы и записи о них)
     :param user_id:
     :return:
     """
     with Session() as s:
-        s.query(users).filter(users.id == user_id).delete()
-        s.commit()
+        try:
+            s.query(users).filter(users.id == user_id).delete()
+            s.commit()
+        except:
+            return False
+    return True
 
 
 def delete_album(album_id):
@@ -782,9 +786,9 @@ def add_many_photos_to_album(photo_id_list, album_id):
     return True
 
 
-def get_users_photos(owner_id, viewer_id):
+def get_users_photos(owner_id, viewer_id) -> list:
     """
-    Получить все досупные фото
+    Получить все доступные фото
     :param owner_id:
     :param viewer_id:
     :return:

@@ -12,6 +12,7 @@ Base = declarative_base()
 Session: Session = sessionmaker()
 # session = sessionmaker()
 
+
 def init_database_session() -> None:
     """Initialize global Session for interacting with DB.
     Method must be called firstly, if Application want to interact with DB, when calling Session().

@@ -34,39 +34,45 @@ if __name__ == "__main__":
     # print(type(create_tag("qwerty11")))
     # print(get_tag_list())
     # print(albums_exist([1]))
+    print(registration("Privet", "a@a@mail.ru", "priveta"))
+    print(select_all_from(users))
+    print(select_all_from(photos))
+    print(get_users_photos(199, 3))
+    print(delete_user(199))
+    print(get_users_photos(199, 3))
 
-    while True:
-        print("------themes----------------------------------------")
-        my_list = select_all_from(themes)
-        for row in my_list:
-            print(row)
-        print("------tags----------------------------------------")
-        my_list = select_all_from(tags)
-        for row in my_list:
-            print(row)
-        print("------albums----------------------------------------")
-        my_list = select_all_from(albums)
-        for row in my_list:
-            print(row)
-        print("------photos----------------------------------------")
-        my_list = select_all_from(photos)
-        for row in my_list:
-            print(row)
-        print("------users----------------------------------------")
-        my_list = select_all_from(users)
-        for row in my_list:
-            print(row)
-        print("------users----------------------------------------")
-        my_list = select_all_from(users)
-        for row in my_list:
-            print(row)
+
+    # while True:
+    #     print("------themes----------------------------------------")
+    #     my_list = select_all_from(themes)
+    #     for row in my_list:
+    #         print(row)
+    #     print("------tags----------------------------------------")
+    #     my_list = select_all_from(tags)
+    #     for row in my_list:
+    #         print(row)
+    #     print("------albums----------------------------------------")
+    #     my_list = select_all_from(albums)
+    #     for row in my_list:
+    #         print(row)
+    #     print("------photos----------------------------------------")
+    #     my_list = select_all_from(photos)
+    #     for row in my_list:
+    #         print(row)
+    #     print("------users----------------------------------------")
+    #     my_list = select_all_from(users)
+    #     for row in my_list:
+    #         print(row)
+    #     print("------users----------------------------------------")
+    #     my_list = select_all_from(users)
+    #     for row in my_list:
+    #         print(row)
     #
     #     check_album_list_owner(2, [1, 2, 4, 5])
     #
-        print(get_users_photos(2, 9))
-        input("press Enter")
+    #     print(get_users_photos(2, 9))
+    #     input("press Enter")
 
-
-    print(get_user_info(3))
+    # print(get_user_info(3))
 
 
