@@ -427,7 +427,7 @@ def get_album(album_id):
         }
 
 
-def change_album(album_id, name=None, description=None):
+def change_album(album_id, name=None, description=None) -> bool:
     """Изменить альбом с указанным album_id
     :param album_id:
     :param name:
@@ -964,9 +964,32 @@ def get_user_info(user_id):
         return None
 
 
-def update_comment(coment_id, text):
-    pass
+def update_comment(comment_id: int, text: str) -> bool:
+    """Изменить комментарий
+    :param comment_id:
+    :param text:
+    :return:
+    """
+    with Session() as s:
+        stmt = f'''UPDATE comments 
+                   SET text = '{text}' 
+                   WHERE id = {comment_id}'''
+        s.execute(stmt)
+        s.commit()
+    return True
 
-def update_photo(description=None, private=None):
-    pass
+
+def update_photo(photo_id: int, description: str = None, private: bool = None) -> bool:
+    set = []
+    if description:
+        set.append(f"description = '{description}'")
+    if private is not None:
+        set.append(f"private = {private}")
+    set = "SET " + ",\n".join(set)
+
+    with Session() as s:
+        stmt = f'UPDATE photos {set} WHERE id = {photo_id}'
+        s.execute(stmt)
+        s.commit()
+    return True
 
