@@ -126,9 +126,8 @@ def get_photo(photo_id: int, viewer_id: int) -> dict:
                        ) as paui
                        WHERE paui.user_id = {viewer_id}'''
             access = s.execute(stmt)
-            for i in access:
-                if not i[0]:
-                    return None
+            if not access.first():
+                return None
 
         # example in SQL for theme:
         # SELECT * FROM photo_themes

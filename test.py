@@ -78,7 +78,14 @@ if __name__ == "__main__":
     #     input("press Enter")
     # print(select_all_from(users))
     # print(select_all_from(photos))
-    print(get_photo(10000, 100))
+    # print(select_all_from(photo_access))
+    with Session() as s:
+        photo_theme = s.query(photo_access).filter(photo_access.photo_id == 1).all()
+
+    print(photo_theme)
+    print(get_photo(1, 79))
+    print(get_photo(1, 100))
+    print(get_photo(1, 86))
     # print(get_user_info(3))
 
 
