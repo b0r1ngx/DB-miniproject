@@ -262,8 +262,8 @@ place TEXT NOT NULL
 ```
 
 ## SQL DML
-Мы использовали ORM SQLalchemy, поэтому в явном виде сложные запросы 
-в проекте отсутствуют, однако средствами SQLalchemy можно конвертировать
+Мы использовали ORM SQLAlchemy, поэтому чаще всего в явном виде сложные запросы 
+в проекте отсутствуют, однако средствами SQLAlchemy можно конвертировать
 запросы из "ORM-ного" вида в SQL.
 
 Пример:
@@ -282,8 +282,6 @@ user_access = s.query(photo_access).filter(
 
 private_with_acc = private.join(user_access)
 ```
-
-
 ```SQL
 print(private_with_acc)
 
@@ -293,7 +291,6 @@ FROM photo_access
 WHERE photo_access.user_id = %(user_id_1)s) AS anon_1 ON photos.id = anon_1.photo_access_photo_id 
 WHERE photos.private = true AND photos.user_id = %(user_id_2)s
 ```
-
 
 ### Наполнение БД данными (и генерация)
 В файле `generator.py`  запустив `if __name__ == "__main__":`, можно сгенерировать данные для работы с БД, 
@@ -384,7 +381,7 @@ Base.metadata.create_all(engine)
 В ходе работы:
 
     + использовали многие возможности реляционных баз данных  
-    + Познакомились с ORM SQLalchemy
+    + Познакомились с ORM SQLAlchemy
     + Научились инициализировать базу данных, создавать связанные таблицы
     + Научились заполнять базу данных автоматически генерируемыми данными
     + Использовали сложные и вложенные запросы
