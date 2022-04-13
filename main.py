@@ -133,6 +133,9 @@ def requires_auth(f):
 def check_user_exist(user_id):
     return dbi.is_user_exist(user_id)
 
+def check_comment_exist(photo_id, comment_id):
+    return dbi.is_comment_exist(photo_id, comment_id)
+
 
 def check_album_exist(user_id, album_id):
     return dbi.is_album_exist(user_id, album_id)
@@ -740,6 +743,7 @@ class CommentID(Resource):
     @user_api.response(404, "Not found photo with this ID", message_model)
     @user_api.response(404, "Not found comment with this ID", message_model)
     def delete(photo_id, comment_id):
+        if check_
         return "Не доделано"
 
 
